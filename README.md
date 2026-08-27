@@ -34,6 +34,44 @@ Best with sound on. Works in any modern desktop browser; touch controls appear o
 Fill the **EGO gauge** by dribbling, tackling, passing and shooting. At 100% you enter
 Flow: a cut-in fires, the world slows, and your signature move goes off.
 
+Gauge gains: tackle won **+14**, ball stolen **+12**, shot **+6→14** (scales with charge),
+pass **+5**, dash **+2**, dribbling above jogging speed **+3.2/sec**.
+
+## Solo training
+
+**SOLO TRAINING** on the select screen drops you onto an empty pitch — no teammates, no
+opponents, no clock — with the ego gauge refilling instantly, so you can run every move
+back to back.
+
+| Key | Action |
+| --- | --- |
+| `1`…`6` | Swap striker on the spot (Isagi → Barou, in roster order) |
+| `E` | Fire the ego move — the gauge refills in about half a second |
+| `R` | Put the ball back at your feet |
+| `G` | Toggle the opposition keeper |
+| `T` | Cycle defenders: off → standing targets → chasing |
+| `C` | Toggle cutscenes (off = instant restart after a goal) |
+| `Esc` | Back to the select screen |
+
+Standing targets don't fight back — they take a hit, get up and walk back to their mark,
+which is what you want for Barou's charge and Bachira's phase. Switch them to *chasing*
+when you want real pressure. Goals still count and still play their cutscene; the ball
+just comes straight back to you afterwards.
+
+### Getting the most out of each ego move
+
+| Striker | Press `E` when… | What happens |
+| --- | --- | --- |
+| **Isagi** | You **have the ball** in the attacking half | Time drops to 32% for 1.5s, then it auto-fires into the corner away from the keeper |
+| **Rin** | You **have the ball**, any distance | Auto-rocket after 0.55s. Without the ball: +60% shot power for 4s |
+| **Nagi** | You **don't** have the ball and it's within ~22 units | The ball snaps to your feet, then +55% shot power for 4s |
+| **Chigiri** | You're carrying in **open space** | +85% top speed for 3.6s |
+| **Bachira** | Defenders are **closing in** | 3.4s of tackles passing straight through you, +40% speed |
+| **Barou** | There's a **wall of defenders** in the way | 2.8s where contact above ~6 m/s knocks them flat, +50% shot power |
+
+Note that only Isagi and Rin fire a true *ego shot*, which cuts the keeper's dive reach to
+45%. The other four buff you and you take the shot yourself, against a keeper at full reach.
+
 ## The roster
 
 | Striker | Role | Ego move |

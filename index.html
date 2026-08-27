@@ -99,6 +99,8 @@
   .btn:hover{transform:skewX(-7deg) translateY(-2px);box-shadow:0 0 40px rgba(77,227,255,.9),0 8px 0 #0b3fa8}
   .btn:active{transform:skewX(-7deg) translateY(3px);box-shadow:0 0 20px rgba(47,123,255,.6),0 2px 0 #0b3fa8}
   .btn.ghost{background:transparent;color:#bcd8ff;border:1px solid rgba(140,190,255,.4);box-shadow:none}
+  .btn.gold{background:linear-gradient(180deg,#ffe9a8,#ffb42e);box-shadow:0 0 26px rgba(255,180,46,.6),0 6px 0 #8a5a00}
+  .btn.gold:hover{box-shadow:0 0 40px rgba(255,209,102,.9),0 8px 0 #8a5a00}
   .diff{display:flex;gap:8px;align-items:center;font-size:11px;letter-spacing:.2em;color:#7f9bc8}
   .dbtn{padding:8px 16px;border:1px solid rgba(140,190,255,.3);background:rgba(10,20,50,.6);color:#9fb6dd;
     border-radius:5px;cursor:pointer;font-family:var(--face);letter-spacing:.14em;font-size:12px}
@@ -165,6 +167,20 @@
     text-shadow:0 0 40px rgba(255,209,102,.85)}
   .ranklab{font-size:10px;letter-spacing:.4em;color:#8ba6d0;margin-bottom:-6px}
 
+  /* training panel */
+  .tpanel{position:absolute;left:2.2vw;top:6vh;width:min(24vw,264px);padding:12px 14px 10px;
+    background:rgba(3,8,20,.78);border:1px solid rgba(120,170,255,.28);border-left:3px solid var(--gold);
+    border-radius:0 10px 10px 0;backdrop-filter:blur(3px)}
+  .tpanel .th{font-family:var(--face);font-size:13px;letter-spacing:.22em;color:var(--gold);
+    text-shadow:0 0 14px rgba(255,209,102,.6)}
+  .tpanel .tcur{font-size:11px;letter-spacing:.1em;color:#9fd8ff;margin:3px 0 9px;
+    padding-bottom:8px;border-bottom:1px solid rgba(120,170,255,.18);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tpanel ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
+  .tpanel li{display:flex;align-items:baseline;gap:8px;font-size:10.5px;color:#8fa9d0;letter-spacing:.04em}
+  .tpanel li b{font-family:var(--face);font-size:10px;color:#eaf2ff;background:rgba(120,170,255,.14);
+    border:1px solid rgba(120,170,255,.3);border-radius:4px;padding:2px 5px;min-width:20px;text-align:center}
+  .tpanel li i{font-style:normal;color:var(--gold);letter-spacing:.12em}
   /* touch */
   #touch{display:none}
   #touch .stick{position:absolute;left:4vw;bottom:6vh;width:34vw;max-width:180px;aspect-ratio:1;
@@ -220,6 +236,7 @@
         <button class="dbtn" data-d="2">MONSTER</button>
       </div>
       <button class="btn" id="kickoff">KICK OFF</button>
+      <button class="btn gold" id="training">SOLO TRAINING</button>
       <button class="btn ghost" id="backTitle">BACK</button>
     </div>
     <div class="vig"></div>
@@ -250,6 +267,23 @@
       <div class="key spec" id="kSpec"><div class="k">E</div><div class="l">EGO</div><div class="cd" id="cdSpec"></div></div>
     </div>
     <div class="toast" id="toast"></div>
+  </div>
+
+  <!-- ===== TRAINING PANEL ===== -->
+  <div class="layer hidden" id="train">
+    <div class="tpanel">
+      <div class="th">SOLO TRAINING</div>
+      <div class="tcur" id="tcur">—</div>
+      <ul>
+        <li><b>1</b>…<b>6</b><span>swap striker</span></li>
+        <li><b>E</b><span>ego move — gauge auto-refills</span></li>
+        <li><b>R</b><span>ball back to your feet</span></li>
+        <li><b>G</b><span>keeper <i id="tgk">OFF</i></span></li>
+        <li><b>T</b><span>defenders <i id="tdum">OFF</i></span></li>
+        <li><b>C</b><span>cutscenes <i id="tcut">ON</i></span></li>
+        <li><b>ESC</b><span>back to select</span></li>
+      </ul>
+    </div>
   </div>
 
   <!-- ===== TOUCH ===== -->
@@ -758,7 +792,8 @@ function makePlayer(char, team, isGK, isUser, x, z){
   };
 }
 const G = {
-  state:'menu', t:0, matchT:120, score:{A:0, B:0}, diff:1,
+  state:'menu', mode:'match', t:0, matchT:120, score:{A:0, B:0}, diff:1,
+  dummyMode:0, gkOn:false, noCut:false,
   players:[], A:[], B:[], user:null, ball:null,
   ego:0, flowUsed:false, kickoffFor:'A', freeze:0, msgT:0,
   stats:{shots:0, onTarget:0, goals:0, tackles:0, passes:0, dribbleM:0, topSpeed:0, specials:0},
@@ -777,12 +812,22 @@ const DIFF = [
   { name:'MONSTER', ai:1.06, reach:2.05, gkErr:1.5, aggr:1.4 }
 ];
 
-function buildMatch(userCharId, diff){
+function buildMatch(userCharId, diff, training){
+  G.mode = training ? 'training' : 'match';
   G.diff = diff; G.players = []; G.A = []; G.B = [];
   G.score.A = 0; G.score.B = 0; G.matchT = 120; G.ego = 0; G.flowUsed = false;
   G.stats = {shots:0, onTarget:0, goals:0, tackles:0, passes:0, dribbleM:0, topSpeed:0, specials:0};
   G.ended = false; G.resultShown = false;
   const uc = byId(userCharId);
+  if (training){                        // empty pitch: just you, the ball and the goals
+    const u = makePlayer(uc, 'A', false, true, 0, W.LEN * .5); u.role = 'st';
+    u.homeX = u.x; u.homeZ = u.z; G.user = u;
+    G.A = [u]; G.B = []; G.players = [u];
+    G.dummyMode = 0; G.gkOn = false; G.noCut = false; G.matchT = 999;
+    G.ball = newBall(); FX.reset();
+    trainResetBall();
+    return;
+  }
   const rest = ROSTER.filter(c => c.id !== userCharId);
   // team A: user + 2 mates + GK
   const mates = rest.slice(0, 2), foes = rest.slice(2, 5);
@@ -800,6 +845,59 @@ function buildMatch(userCharId, diff){
   for (const p of G.players){ p.homeX = p.x; p.homeZ = p.z; }
   G.ball = newBall();
   FX.reset();
+}
+/* -------------------------- training ground -------------------------- */
+function trainResetBall(){
+  const b = G.ball, u = G.user; if (!b || !u) return;
+  b.vx = b.vy = b.vz = 0; b.spin = 0; b.hot = 0; b.mode = '';
+  b.x = u.x + u.fx * 1.1; b.z = u.z + u.fz * 1.1; b.y = .22;
+  b.freeCd = 0; b.owner = u; b.lastTouch = u;
+  ring(u.x, u.z, { r:3.2, life:.35, col:'#4de3ff', w:.12 });
+}
+function trainSwap(i){
+  const c = ROSTER[i], u = G.user; if (!c || !u || u.char === c) return;
+  u.char = c;
+  u.flow = 0; u.ghost = 0; u.king = 0; u.speedBoost = 0; u.powerBoost = 0;
+  u.egoTimer = 0; u.autoShot = 0; u.chargeT = 0; u.aura = 0;
+  G.ego = 100;
+  ring(u.x, u.z, { r:6.5, life:.5, col:'#4de3ff', w:.2 });
+  spark(u.x, 1, u.z, { n:26, col:'#4de3ff', size:.16, life:.6, spdMax:10, up:6 });
+  FX.flash = .22; FX.flashCol = '#4de3ff'; Sound.stinger();
+  if (!G.noCut) startCutin(c, c.name, c.pos + ' — ' + c.move, 1.0, false, 'A');
+  syncTrainPanel();
+}
+function trainKeeper(on){
+  G.gkOn = on;
+  G.B = G.B.filter(p => !p.isGK);
+  G.players = G.players.filter(p => !p.isGK || p.team !== 'B');
+  if (on){
+    const gk = makePlayer(byId('barou'), 'B', true, false, 0, W.LEN - 1.2);
+    gk.role = 'gk'; gk.homeX = 0; gk.homeZ = W.LEN - 1.2;
+    G.B.push(gk); G.players.push(gk);
+  }
+  syncTrainPanel();
+}
+function trainDummies(mode){          // 0 off · 1 standing targets · 2 they fight back
+  G.dummyMode = mode;
+  G.B = G.B.filter(p => !p.dummy);
+  G.players = G.players.filter(p => !p.dummy);
+  if (mode){
+    const pool = ROSTER.filter(c => c.id !== G.user.char.id);
+    [-7, 0, 7].forEach((x, i) => {
+      const d = makePlayer(pool[i % pool.length], 'B', false, false, x, W.LEN * .64);
+      d.dummy = mode; d.role = 'wing'; d.homeX = x; d.homeZ = W.LEN * .64;
+      G.B.push(d); G.players.push(d);
+    });
+  }
+  syncTrainPanel();
+}
+function syncTrainPanel(){
+  if (G.mode !== 'training' || !G.user) return;
+  const c = G.user.char;
+  $('tcur').textContent = c.name + ' — ' + c.move;
+  $('tgk').textContent = G.gkOn ? 'ON' : 'OFF';
+  $('tdum').textContent = ['OFF', 'STANDING', 'CHASING'][G.dummyMode];
+  $('tcut').textContent = G.noCut ? 'OFF' : 'ON';
 }
 function goalZ(team){ return team === 'A' ? W.zA : W.zB; }   // goal the team DEFENDS
 function attackZ(team){ return team === 'A' ? W.zB : W.zA; } // goal the team ATTACKS
@@ -910,12 +1008,12 @@ function checkGoal(dt){
     // GK save test
     const gk = teamOf(side).find(p => p.isGK);
     const power = Math.hypot(b.vx, b.vz);
-    const err = Math.abs(gk.x - cx);
+    const err = gk ? Math.abs(gk.x - cx) : 1e9;      // no keeper on the training pitch
     const beatable = DIFF[G.diff].reach
       * (b.mode === 'ego' ? .45 : 1)                       // ego shots blow through gloves
       * (1 - clamp((power - 26) / 40, 0, .38))             // pace beats the dive
       * (cy > 1.5 ? .70 : 1);                              // top corners are murder
-    if (err < beatable && Math.random() < .94){
+    if (gk && err < beatable && Math.random() < .94){
       // SAVE
       gk.dive = .55; gk.diveDir = Math.sign(cx - gk.x) || 1;
       b.z = gz + (side === 'A' ? 1.1 : -1.1); b.vz *= -.55; b.vx = rand(9, -9); b.vy = rand(7, 2);
@@ -1073,7 +1171,8 @@ function triggerSpecial(){
   const id = p.char.id;
   Sound.ego();
   const first = !G.flowUsed; G.flowUsed = true;
-  startCutin(p.char, p.char.move, p.char.quote, first ? 1.65 : 1.15, false);
+  if (!G.noCut) startCutin(p.char, p.char.move, p.char.quote, first ? 1.65 : 1.15, false);
+  else floatText(p.x, 2.6, p.z, p.char.move, { col:'#ffd166', size:34, life:1.2 });
   FX.targetSlow = .22; setTimeout(() => { if (FX.targetSlow < 1 && p.char.id !== 'isagi') FX.targetSlow = 1; }, 380);
   ring(p.x, p.z, {r:11, life:.8, col:'#ffd166', w:.4});
   ring(p.x, p.z, {r:7, life:.6, col:'#fff', w:.25});
@@ -1162,6 +1261,18 @@ function updateUser(p, dt){
 
 /* ------------------------------- AI ------------------------------- */
 function updateAI(p, dt){
+  if (p.dummy === 1){                    // standing target: takes hits, walks back, never presses
+    if (p.stun <= 0 && p.down <= 0){
+      const d = dist(p.x, p.z, p.homeX, p.homeZ);
+      if (d > .7){
+        const [dx, dz] = norm(p.homeX - p.x, p.homeZ - p.z);
+        p.vx += (dx * 3.4 - p.vx) * Math.min(1, dt * 4);
+        p.vz += (dz * 3.4 - p.vz) * Math.min(1, dt * 4);
+      } else { const f = Math.pow(.02, dt); p.vx *= f; p.vz *= f; }
+      p.fx = 0; p.fz = -1;
+    }
+    return;
+  }
   const b = G.ball, mine = b.owner === p, ownTeam = b.owner && b.owner.team === p.team;
   const D = DIFF[G.diff];
   const skill = p.team === 'B' ? D.ai : .93;
@@ -1372,7 +1483,12 @@ function onGoal(scorer, cx, cy, gz){
   ring(cx, gz, {r:14, life:.9, col:'#fff', w:.28});
   netShockwave(gz, cx, cy);
   if (shooter) shooter.celebrate = 3.4;
-  startGoalScene(scorer, shooter, cx, cy, gz);
+  if (G.mode === 'training' && G.noCut){
+    banner('GOAL', null, .9, '#ffffff', '#4de3ff', .30, .12);
+    setTimeout(() => {
+      if (G.mode === 'training' && G.state === 'goal'){ trainResetBall(); G.state = 'play'; }
+    }, 550);
+  } else startGoalScene(scorer, shooter, cx, cy, gz);
   document.getElementById('scoreA').textContent = G.score.A;
   document.getElementById('scoreB').textContent = G.score.B;
 }
@@ -1407,7 +1523,10 @@ function updateCam(dt){
 
 /* ---------------------------- world update ---------------------------- */
 function updateWorld(dt){
-  if (G.state === 'play'){
+  if (G.mode === 'training'){
+    document.getElementById('clock').textContent = 'FREE';
+    if (G.state === 'play') G.ego = clamp(G.ego + dt * 220, 0, 100);   // never wait for the gauge
+  } else if (G.state === 'play'){
     G.matchT -= dt;
     if (G.matchT <= 0){ G.matchT = 0; endMatch(); }
     const m = Math.floor(G.matchT / 60), s = Math.floor(G.matchT % 60);
@@ -1425,7 +1544,8 @@ function updateWorld(dt){
   ballStep(dt);
   if (NET.on){ NET.t += dt; if (NET.t > 1.6) NET.on = false; }
   // crowd intensity tracks the danger level
-  if (G.state === 'play' && (G.t | 0) % 1 === 0){
+  if (G.mode === 'training'){ Sound.crowd(.22); }
+  else if (G.state === 'play' && (G.t | 0) % 1 === 0){
     const b = G.ball;
     const danger = 1 - clamp(Math.min(Math.abs(b.z - W.zA), Math.abs(b.z - W.zB)) / 30, 0, 1);
     Sound.crowd(.35 + danger * .65);
@@ -2225,6 +2345,9 @@ function startGoalScene(scorer, shooter, cx, cy, gz){
       }
       if (t > 4.3){
         FX.targetSlow = 1; FX.letterbox = 0;
+        if (G.mode === 'training'){
+          trainResetBall(); G.state = 'play'; G.scene = null; return;
+        }
         if (G.matchT <= 0){ endMatch(); return; }
         resetPositions(conceded);
         G.state = 'play'; G.scene = null; Sound.whistle(); Sound.crowd(.6);
@@ -2410,31 +2533,72 @@ function show(id){
     const el = $(s); el.classList.toggle('hidden', s !== id); el.classList.toggle('on', s === id);
   });
 }
-function toSelect(){ show('select'); G.state = 'menu'; $('hud').classList.add('gone'); buildCards(); refreshSelect(); Sound.ui(); Sound.crowd(.25); }
+function toSelect(){ show('select'); G.state = 'menu'; G.mode = 'match';
+  $('hud').classList.add('gone'); $('train').classList.add('hidden'); buildCards(); refreshSelect(); Sound.ui(); Sound.crowd(.25); }
+function enterPlayScreens(){
+  show(null);
+  $('hud').classList.remove('gone');
+  $('result').classList.add('hidden');
+  Sound.unlock();
+  if (matchMedia('(pointer:coarse)').matches){
+    document.body.classList.add('touch'); $('touch').classList.remove('hidden');
+  }
+}
+function startTraining(){
+  enterPlayScreens();
+  $('train').classList.remove('hidden');
+  buildMatch(chosen, diffSel, true);
+  $('scoreA').textContent = '0'; $('scoreB').textContent = '0';
+  G.t = 0; G.state = 'play'; G.scene = null;
+  G.ego = 100;
+  CAM.x = 0; CAM.y = 11.6; CAM.z = G.user.z - 17.5; CAM.yaw = 0; CAM.pitch = .295; CAM.zoom = 1;
+  CAM.tx = CAM.x; CAM.ty = CAM.y; CAM.tz = CAM.z; CAM.tyaw = 0; CAM.tpitch = .295;
+  $('hud').classList.add('show');
+  syncTrainPanel();
+  banner('SOLO TRAINING', 'PRESS 1-6 TO SWAP STRIKER · E FIRES THE EGO MOVE · R RESETS THE BALL',
+    2.6, '#ffe9a8', '#ffb42e', .34, .10);
+  Sound.stinger(); Sound.crowd(.22);
+}
 function startGame(){
-  show(null); $('hud').classList.remove('show', 'gone'); $('hud').classList.remove('gone');
+  enterPlayScreens();
+  $('train').classList.add('hidden');
+  $('hud').classList.remove('show');
   buildMatch(chosen, diffSel);
   document.getElementById('scoreA').textContent = '0';
   document.getElementById('scoreB').textContent = '0';
   G.state = 'intro'; G.t = 0;
   CAM.x = -26; CAM.y = 26; CAM.z = W.LEN + 6; CAM.yaw = -.85; CAM.pitch = .62; CAM.zoom = 1;
   startIntro();
-  Sound.unlock(); Sound.crowd(.8);
-  if (matchMedia('(pointer:coarse)').matches){ document.body.classList.add('touch'); $('touch').classList.remove('hidden'); }
+  Sound.crowd(.8);
 }
 $('pressStart').addEventListener('click', toSelect);
 $('title').addEventListener('click', () => { Sound.unlock(); toSelect(); });
 $('backTitle').addEventListener('click', e => { e.stopPropagation(); show('title'); Sound.ui(); });
 $('kickoff').addEventListener('click', e => { e.stopPropagation(); startGame(); });
+$('training').addEventListener('click', e => { e.stopPropagation(); startTraining(); });
 $('again').addEventListener('click', () => { show(null); startGame(); });
 $('toSelect').addEventListener('click', () => { $('result').classList.add('hidden'); toSelect(); });
 document.querySelectorAll('.dbtn').forEach(b => b.addEventListener('click', () => {
   diffSel = +b.dataset.d; document.querySelectorAll('.dbtn').forEach(x => x.classList.toggle('on', x === b)); Sound.ui();
 }));
+// training-ground hotkeys
+addEventListener('keydown', e => {
+  if (G.mode !== 'training' || G.state === 'menu' || e.repeat) return;
+  const k = e.key.toLowerCase();
+  if (k >= '1' && k <= '6'){ trainSwap(+k - 1); return; }
+  if (k === 'r'){ trainResetBall(); Sound.ui(); showToast('BALL RESET'); return; }
+  if (k === 'g'){ trainKeeper(!G.gkOn); Sound.ui(); showToast('KEEPER ' + (G.gkOn ? 'ON' : 'OFF')); return; }
+  if (k === 't'){ trainDummies((G.dummyMode + 1) % 3); Sound.ui();
+    showToast('DEFENDERS ' + ['OFF', 'STANDING', 'CHASING'][G.dummyMode]); return; }
+  if (k === 'c'){ G.noCut = !G.noCut; syncTrainPanel(); Sound.ui();
+    showToast('CUTSCENES ' + (G.noCut ? 'OFF' : 'ON')); return; }
+  if (k === 'escape'){ G.scene = null; FX.reset(); Sound.stopCrowd(); toSelect(); }
+});
 addEventListener('keydown', e => {
   if (e.key === 'Enter'){
     if (!$('title').classList.contains('hidden')) toSelect();
     else if (!$('select').classList.contains('hidden')) startGame();
+    else if (G.mode === 'training') trainResetBall();
     else if (!$('result').classList.contains('hidden')){ show(null); startGame(); }
   }
   if (!$('select').classList.contains('hidden')){

@@ -57,17 +57,22 @@ everything else works off the ball — that is the whole point of Blind Spot and
 
 ### The awakening cutscenes
 
-Each awakening lands a hit-stop, clears the HUD, and plays its own motif before the character
-cut-in:
+These are shot sequences, not title cards. The world blacks out, the character is relit and
+animated, and the camera hard-cuts between framings: a ground-level plant, a low push-in as
+motes stream inward and he gathers, then the eruption — an aura column, fissures tearing
+across the turf, embers — and a slow orbit as the name stamps in and clears.
 
-- **Isagi — Blind Spot.** The camera climbs into a tactical overhead read. Every marker
-  projects the cone of what they can actually see; the gap none of them covers is ringed in
-  gold, with the run into it drawn as a dashed path. Then the camera slams back down behind him.
-- **Bachira — Duet.** His monster rises out of the dark behind him, eyes and grin lit.
-- **Chigiri — No Brakes.** The pitch tears into speed lines and scarlet shockwaves.
-- **Nagi — Zero Friction.** The world greys out and freezes into drifting motes.
-- **Rin — Tunnel Vision.** Everything but the goal mouth collapses into black.
-- **Barou — The Crown.** A crown drops over him as gold rings blow out across the turf.
+**Isagi's is the blind spot off the ball**, and runs longer (~16s) as its own sequence:
+
+1. The stadium falls away and he is alone in a void, puzzle pieces drifting past him.
+2. He settles into a thinking pose while the pieces turn around him.
+3. One piece drops out of the lens, tumbling down and away, and strikes the unseen floor.
+4. The frame holds on that impact alone — concentric ripples spreading across the dark —
+   while he says the line.
+5. Cut to his face: the eyes ignite green with ringed lens irises.
+6. The read: the markers light up with the cones of what they can see, the gap none of them
+   covers is ringed, and he is already standing in it.
+7. Back to the pitch, and the eruption.
 
 ## Solo training
 

@@ -91,6 +91,11 @@
   .bio .quote{color:#c7d8f5;font-style:italic;font-size:clamp(11px,1.15vw,14px);line-height:1.6}
   .bio .ab{margin-top:10px;font-size:clamp(10px,1.05vw,13px);color:#9fb6dd;line-height:1.6}
   .bio .ab b{color:var(--gold);letter-spacing:.1em}
+  .bio .mvs{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
+  .bio .mrow{display:flex;align-items:center;gap:6px;background:rgba(120,170,255,.10);
+    border:1px solid rgba(120,170,255,.22);border-radius:5px;padding:3px 8px;
+    font-size:clamp(9px,.95vw,12px);color:#dce9ff;letter-spacing:.04em}
+  .bio .mrow i{font-style:normal;font-family:var(--face);font-size:9px;color:#4de3ff}
   .foot{display:flex;gap:14px;align-items:center;justify-content:center;padding-bottom:2.4vh;flex-wrap:wrap}
   .btn{font-family:var(--face);letter-spacing:.18em;font-size:clamp(12px,1.4vw,18px);padding:12px 30px;
     border:0;border-radius:6px;cursor:pointer;color:#02040c;
@@ -110,6 +115,7 @@
   #hud{opacity:0;transition:opacity .4s}
   #hud.show{opacity:1}
   #hud.gone{display:none}
+  #hud.cine,#train.cine{opacity:0;transition:opacity .3s}
   .score{position:absolute;top:2.4vh;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:0;
     filter:drop-shadow(0 6px 18px rgba(0,0,0,.8))}
   .sbox{font-family:var(--face);font-size:clamp(20px,3.2vw,40px);padding:6px 18px;color:#fff;line-height:1}
@@ -137,6 +143,13 @@
   .key .cd{position:absolute;inset:0;background:rgba(2,6,16,.82);transform-origin:bottom}
   .key.rdy{border-color:var(--cy);box-shadow:0 0 18px rgba(77,227,255,.45)}
   .key.spec.rdy{border-color:var(--gold);box-shadow:0 0 24px rgba(255,209,102,.7);animation:egoflash .6s steps(2) infinite}
+  .key.mv{width:clamp(56px,6.2vw,88px)}
+  .key.mv .l{font-size:7.5px;letter-spacing:.04em;line-height:1.15;text-align:center;padding:0 3px;
+    white-space:normal;max-width:100%}
+  .key.awk{border-color:var(--gold);box-shadow:0 0 16px rgba(255,209,102,.4)}
+  .key.awk .k{color:var(--gold)}
+  .key.spec.done{border-color:var(--gold);box-shadow:0 0 18px rgba(255,209,102,.5);animation:none}
+  .key.spec.done .k{font-size:clamp(9px,1vw,12px);color:var(--gold)}
   .radar{position:absolute;right:2.2vw;top:2.4vh;width:clamp(90px,10vw,148px);aspect-ratio:.68;
     background:rgba(3,7,18,.72);border:1px solid rgba(120,170,255,.28);border-radius:8px;overflow:hidden}
   .radar canvas{width:100%;height:100%;display:block}
@@ -173,9 +186,8 @@
     border-radius:0 10px 10px 0;backdrop-filter:blur(3px)}
   .tpanel .th{font-family:var(--face);font-size:13px;letter-spacing:.22em;color:var(--gold);
     text-shadow:0 0 14px rgba(255,209,102,.6)}
-  .tpanel .tcur{font-size:11px;letter-spacing:.1em;color:#9fd8ff;margin:3px 0 9px;
-    padding-bottom:8px;border-bottom:1px solid rgba(120,170,255,.18);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tpanel .tcur{font-size:10.5px;letter-spacing:.06em;color:#9fd8ff;margin:3px 0 9px;
+    padding-bottom:8px;border-bottom:1px solid rgba(120,170,255,.18);line-height:1.4}
   .tpanel ul{list-style:none;margin:0;padding:0;display:grid;gap:5px}
   .tpanel li{display:flex;align-items:baseline;gap:8px;font-size:10.5px;color:#8fa9d0;letter-spacing:.04em}
   .tpanel li b{font-family:var(--face);font-size:10px;color:#eaf2ff;background:rgba(120,170,255,.14);
@@ -264,7 +276,9 @@
       <div class="key" id="kPass"><div class="k">K</div><div class="l">PASS</div><div class="cd" id="cdPass"></div></div>
       <div class="key" id="kTackle"><div class="k">L</div><div class="l">TACKLE</div><div class="cd" id="cdTackle"></div></div>
       <div class="key" id="kShoot"><div class="k">J</div><div class="l">SHOOT</div><div class="cd" id="cdShoot"></div></div>
-      <div class="key spec" id="kSpec"><div class="k">E</div><div class="l">EGO</div><div class="cd" id="cdSpec"></div></div>
+      <div class="key mv" id="kM0"><div class="k">Q</div><div class="l" id="lM0">—</div><div class="cd" id="cdM0"></div></div>
+      <div class="key mv" id="kM1"><div class="k">E</div><div class="l" id="lM1">—</div><div class="cd" id="cdM1"></div></div>
+      <div class="key spec" id="kSpec"><div class="k">F</div><div class="l">AWAKEN</div><div class="cd" id="cdSpec"></div></div>
     </div>
     <div class="toast" id="toast"></div>
   </div>
@@ -276,7 +290,9 @@
       <div class="tcur" id="tcur">—</div>
       <ul>
         <li><b>1</b>…<b>6</b><span>swap striker</span></li>
-        <li><b>E</b><span>ego move — gauge auto-refills</span></li>
+        <li><b>Q</b>/<b>E</b><span>moveset</span></li>
+        <li><b>F</b><span>awaken — gauge auto-refills</span></li>
+        <li><b>X</b><span>back to base moveset</span></li>
         <li><b>R</b><span>ball back to your feet</span></li>
         <li><b>G</b><span>keeper <i id="tgk">OFF</i></span></li>
         <li><b>T</b><span>defenders <i id="tdum">OFF</i></span></li>
@@ -291,7 +307,8 @@
     <div class="stick" id="stick"><div class="nub" id="nub"></div></div>
     <div class="tb" id="tbShoot" style="bottom:16vh">SHOOT</div>
     <div class="tb" id="tbPass" style="bottom:5vh;right:22vw">PASS</div>
-    <div class="tb" id="tbSpec" style="bottom:5vh">EGO</div>
+    <div class="tb" id="tbSpec" style="bottom:5vh">MOVE</div>
+    <div class="tb" id="tbAwake" style="bottom:16vh;right:22vw">AWAKE</div>
   </div>
 
   <!-- ===== RESULT ===== -->
@@ -410,32 +427,26 @@ const ROSTER = [
   { id:'isagi', name:'ISAGI', full:'YOICHI ISAGI', num:11, pos:'FIELD MANIPULATOR',
     hair:'#152444', hair2:'#2a4478', skin:'#f2cfae', eye:'#57b7ff', style:'mid',
     mood:'sharp', stats:{pace:7, power:8, dribble:7, tackle:6, vision:10},
-    move:'DIRECT SHOT', moveDesc:'Reads the whole field. Time crawls, the defence freezes, and the ball is fired straight into the gap only he can see.',
     quote:'"I\'ll devour every one of them — and the goal is mine."' },
   { id:'bachira', name:'BACHIRA', full:'MEGURU BACHIRA', num:8, pos:'MONSTER DRIBBLER',
     hair:'#f5c93f', hair2:'#c99a12', skin:'#f0c9a4', eye:'#ffd166', style:'spiky',
     mood:'grin', stats:{pace:8, power:6, dribble:10, tackle:5, vision:8},
-    move:'MONSTER DANCE', moveDesc:'His monster takes the wheel. Defenders swipe at afterimages while the real Bachira glides straight through them.',
     quote:'"Play with me! My monster is getting hungry!"' },
   { id:'chigiri', name:'CHIGIRI', full:'HYOMA CHIGIRI', num:7, pos:'ABSOLUTE SPEEDSTER',
     hair:'#c0304a', hair2:'#8a1a30', skin:'#f5d3b6', eye:'#ff6b8a', style:'long',
     mood:'calm', stats:{pace:10, power:6, dribble:8, tackle:5, vision:7},
-    move:'CRIMSON BURST', moveDesc:'Zero to top speed in a single stride. A scarlet after-burn is all the defenders ever see.',
     quote:'"Speed is the one weapon nobody can copy."' },
   { id:'nagi', name:'NAGI', full:'SEISHIRO NAGI', num:15, pos:'GENIUS TRAPPER',
     hair:'#dfe6f2', hair2:'#a9b6cc', skin:'#f3d0b2', eye:'#9fd8ff', style:'messy',
     mood:'bored', stats:{pace:6, power:9, dribble:9, tackle:4, vision:9},
-    move:'ZERO TRAP VOLLEY', moveDesc:'Kills the ball dead out of the air and detonates it on the volley before anyone can blink.',
     quote:'"So troublesome... fine. I\'ll just score."' },
   { id:'rin', name:'RIN', full:'ITOSHI RIN', num:10, pos:'COMPLETE STRIKER',
     hair:'#101b33', hair2:'#233a63', skin:'#eecdb0', eye:'#39d1c9', style:'sleek',
     mood:'cold', stats:{pace:8, power:10, dribble:8, tackle:7, vision:9},
-    move:'ULTRA LONG SHOT', moveDesc:'From anywhere past the halfway line, a flat rocket that rips the net off its frame.',
     quote:'"Everyone else is just scenery on my way to the top."' },
   { id:'barou', name:'BAROU', full:'SHOEI BAROU', num:9, pos:'THE KING', 
     hair:'#f4f1e6', hair2:'#b8b3a2', skin:'#e8bb92', eye:'#ffb03a', style:'slick',
     mood:'fierce', stats:{pace:7, power:10, dribble:7, tackle:9, vision:6},
-    move:"KING'S CHARGE", moveDesc:'He does not go around you. He goes through you, then hammers the ball home from the wreckage.',
     quote:'"Kneel. This box belongs to the King."' }
 ];
 const byId = id => ROSTER.find(c => c.id === id);
@@ -788,13 +799,15 @@ function makePlayer(char, team, isGK, isUser, x, z){
     homeX:x, homeZ:z, role:'mid',
     stun:0, dashT:0, dashCd:0, tackleT:0, tackleCd:0, kickCd:0, dive:0, diveDir:0,
     stam:1, runPhase:0, aura:0, ghost:0, king:0, flow:0, speedBoost:0, powerBoost:0,
+    cdT:[0, 0], awakened:false, spdT:0, pwrT:0, brace:0, slippery:0, aimLock:0,
+    autoShot:0, autoOpt:null, inx:0, inz:0,
     aiTimer:0, aiJuke:0, wander:rand(TAU), celebrate:0, down:0, trail:0, lastX:x, lastZ:z
   };
 }
 const G = {
   state:'menu', mode:'match', t:0, matchT:120, score:{A:0, B:0}, diff:1,
   dummyMode:0, gkOn:false, noCut:false,
-  players:[], A:[], B:[], user:null, ball:null,
+  players:[], A:[], B:[], user:null, ball:null, phantoms:[],
   ego:0, flowUsed:false, kickoffFor:'A', freeze:0, msgT:0,
   stats:{shots:0, onTarget:0, goals:0, tackles:0, passes:0, dribbleM:0, topSpeed:0, specials:0},
   scene:null,   // active cutscene
@@ -817,7 +830,7 @@ function buildMatch(userCharId, diff, training){
   G.diff = diff; G.players = []; G.A = []; G.B = [];
   G.score.A = 0; G.score.B = 0; G.matchT = 120; G.ego = 0; G.flowUsed = false;
   G.stats = {shots:0, onTarget:0, goals:0, tackles:0, passes:0, dribbleM:0, topSpeed:0, specials:0};
-  G.ended = false; G.resultShown = false;
+  G.ended = false; G.resultShown = false; G.phantoms = [];
   const uc = byId(userCharId);
   if (training){                        // empty pitch: just you, the ball and the goals
     const u = makePlayer(uc, 'A', false, true, 0, W.LEN * .5); u.role = 'st';
@@ -858,12 +871,14 @@ function trainSwap(i){
   const c = ROSTER[i], u = G.user; if (!c || !u || u.char === c) return;
   u.char = c;
   u.flow = 0; u.ghost = 0; u.king = 0; u.speedBoost = 0; u.powerBoost = 0;
-  u.egoTimer = 0; u.autoShot = 0; u.chargeT = 0; u.aura = 0;
+  u.spdT = 0; u.pwrT = 0; u.brace = 0; u.slippery = 0; u.aimLock = 0;
+  u.autoShot = 0; u.chargeT = 0; u.aura = 0; u.awakened = false;
+  u.cdT[0] = 0; u.cdT[1] = 0; G.phantoms.length = 0;
   G.ego = 100;
   ring(u.x, u.z, { r:6.5, life:.5, col:'#4de3ff', w:.2 });
   spark(u.x, 1, u.z, { n:26, col:'#4de3ff', size:.16, life:.6, spdMax:10, up:6 });
   FX.flash = .22; FX.flashCol = '#4de3ff'; Sound.stinger();
-  if (!G.noCut) startCutin(c, c.name, c.pos + ' — ' + c.move, 1.0, false, 'A');
+  if (!G.noCut) startCutin(c, c.name, MOVES[c.id].base.map(m => m.name).join('  ·  '), 1.0, false, 'A');
   syncTrainPanel();
 }
 function trainKeeper(on){
@@ -894,7 +909,9 @@ function trainDummies(mode){          // 0 off · 1 standing targets · 2 they f
 function syncTrainPanel(){
   if (G.mode !== 'training' || !G.user) return;
   const c = G.user.char;
-  $('tcur').textContent = c.name + ' — ' + c.move;
+  const set = MOVES[c.id][G.user.awakened ? 'awak' : 'base'];
+  $('tcur').innerHTML = (G.user.awakened ? '★ ' : '') + c.name + ' — '
+    + set.map(m => m.name).join(' / ');
   $('tgk').textContent = G.gkOn ? 'ON' : 'OFF';
   $('tdum').textContent = ['OFF', 'STANDING', 'CHASING'][G.dummyMode];
   $('tcut').textContent = G.noCut ? 'OFF' : 'ON';
@@ -1096,7 +1113,9 @@ function doPass(p, power){
   if (p.isUser){ G.stats.passes++; addEgo(p, 5); showToast(m ? 'PASS → ' + m.char.name : 'CLEARED'); }
   if (m) m.aiTimer = 0;
 }
-function doShoot(p, charge, special){
+// opt: { ego, aim:'corner'|'gap', power, lift, curve, col, label }
+function doShoot(p, charge, opt){
+  opt = opt || {};
   const gz = attackZ(p.team);
   const gk = teamOf(other(p.team)).find(g => g.isGK);
   let tx = clamp(p.x * .22, -2.2, 2.2);
@@ -1106,26 +1125,28 @@ function doShoot(p, charge, special){
   } else {
     tx = gk ? clamp(-Math.sign(gk.x - 0) * rand(3.2, 1.4) + rand(1, -1), -3.1, 3.1) : rand(3, -3);
   }
-  if (special === 'isagi' && gk){ tx = clamp(gk.x > 0 ? -3.1 : 3.1, -3.1, 3.1); }
+  // aim assist: put it where the keeper is not
+  if ((opt.aim === 'corner' || p.aimLock > 0) && gk) tx = gk.x > 0 ? -3.4 : 3.4;
   tx = clamp(tx, -(W.GOAL_W / 2 - .5), W.GOAL_W / 2 - .5);
+  if (p.aimLock > 0) p.aimLock = 0;
   const d = dist(p.x, p.z, tx, gz);
   const pw = p.char.stats.power;
-  let power = (23 + pw * 1.5) * (.62 + charge * .55) * (1 + p.powerBoost);
-  if (special) power *= 1.45;
-  const lift = clamp(d * .105 * (.55 + charge * .95) + (special ? 1.6 : 0), 1.1, 8.5);
-  const curve = (p.vx * .12 + rand(.5, -.5)) * (1 - charge * .5) * (special ? .2 : 1);
-  kickBall(p, tx, gz, power, lift, curve, special ? 'ego' : 'shot');
+  const ego = !!opt.ego;
+  let power = (23 + pw * 1.5) * (.62 + charge * .55) * (1 + p.powerBoost) * (opt.power || 1);
+  if (ego) power *= 1.45;
+  const lift = clamp(d * .105 * (.55 + charge * .95) * (opt.lift ?? 1) + (ego ? 1.6 : 0), .5, 9.5);
+  const curve = ((p.vx * .12 + rand(.5, -.5)) * (1 - charge * .5) + (opt.curve || 0)) * (ego ? .3 : 1);
+  kickBall(p, tx, gz, power, lift, curve, ego ? 'ego' : 'shot');
   if (p.isUser){
     G.stats.shots++; addEgo(p, 6 + charge * 8);
     if (Math.abs(tx) < W.GOAL_W / 2) G.stats.onTarget++;
   }
-  // muzzle VFX
-  const col = special ? '#ffd166' : (charge > .7 ? '#ff8a4d' : '#4de3ff');
+  const col = opt.col || (ego ? '#ffd166' : charge > .7 ? '#ff8a4d' : '#4de3ff');
   ring(p.x, p.z, {r: 4 + charge * 3, life:.4, col, w:.2});
   spark(p.x, .6, p.z, {n: 20 + (charge * 22 | 0), col, size:.2, life:.5, spdMax: 14, up:5});
   FX.speedlines = Math.max(FX.speedlines, .35 + charge * .5);
   FX.chroma = Math.max(FX.chroma, 5 + charge * 8);
-  if (special){ FX.flash = .5; FX.flashCol = col; shake(20); Sound.boom(); }
+  if (ego){ FX.flash = .5; FX.flashCol = col; shake(20); Sound.boom(); }
 }
 function knockdown(p, fromX, fromZ, force){
   p.stun = Math.max(p.stun, .75); p.down = .75;
@@ -1143,8 +1164,9 @@ function doTackle(p){
   if (victim && victim.team !== p.team){
     const d = dist(p.x, p.z, victim.x, victim.z);
     if (d < 3.0){
-      if (victim.ghost > 0){
-        if (p.isUser) showToast('PHASED THROUGH!');
+      if (victim.ghost > 0 || victim.brace > 0 || (victim.slippery > 0 && Math.random() < .72)){
+        if (p.isUser) showToast('HE SLIPPED AWAY');
+        else if (victim.isUser) showToast(victim.brace > 0 ? 'HELD HIM OFF' : 'SHRUGGED OFF');
         spark(victim.x, 1, victim.z, {n:14, col:'#ffd166', size:.14, life:.4});
         return;
       }
@@ -1162,42 +1184,487 @@ function doTackle(p){
   }
 }
 
-/* ---------------------------- specials ---------------------------- */
-function triggerSpecial(){
-  const p = G.user;
-  if (G.ego < 100 || p.stun > 0 || G.state !== 'play') return;
-  G.ego = 0; G.stats.specials++;
-  p.flow = 6.5; p.aura = 1;
-  const id = p.char.id;
-  Sound.ego();
-  const first = !G.flowUsed; G.flowUsed = true;
-  if (!G.noCut) startCutin(p.char, p.char.move, p.char.quote, first ? 1.65 : 1.15, false);
-  else floatText(p.x, 2.6, p.z, p.char.move, { col:'#ffd166', size:34, life:1.2 });
-  FX.targetSlow = .22; setTimeout(() => { if (FX.targetSlow < 1 && p.char.id !== 'isagi') FX.targetSlow = 1; }, 380);
-  ring(p.x, p.z, {r:11, life:.8, col:'#ffd166', w:.4});
-  ring(p.x, p.z, {r:7, life:.6, col:'#fff', w:.25});
-  spark(p.x, 1, p.z, {n:60, col:'#ffd166', size:.24, life:1.0, spdMax:16, up:9});
-  FX.flash = .7; FX.flashCol = '#ffd166'; shake(24); FX.radial = 1; FX.speedlines = 1;
-  scar(p.x, p.z, 4.5, 'rgba(255,209,102,.35)');
-
+/* ---------------------------- movesets ----------------------------
+   Every striker carries two abilities on cooldown. Awakening swaps that
+   pair for a stronger set for the rest of the match.
+   ------------------------------------------------------------------ */
+function mvFlash(p, col, r){
+  ring(p.x, p.z, { r: r || 5, life:.45, col, w:.18 });
+  spark(p.x, .9, p.z, { n:18, col, size:.16, life:.5, spdMax:10, up:5 });
+  FX.chroma = Math.max(FX.chroma, 5);
+}
+function grantSpeed(p, amt, t){ p.speedBoost = amt; p.spdT = t; }
+function grantPower(p, amt, t){ p.powerBoost = amt; p.pwrT = t; }
+function grantGhost(p, t){ p.ghost = Math.max(p.ghost, t); }
+function grantBrace(p, t){ p.brace = Math.max(p.brace, t); }
+function nearestFoe(p, range){
+  let best = null, bd = range * range;
+  for (const o of teamOf(other(p.team))){
+    if (o.isGK) continue;
+    const d = dist2(p.x, p.z, o.x, o.z);
+    if (d < bd){ bd = d; best = o; }
+  }
+  return best;
+}
+function magnetBall(p, range){
   const b = G.ball;
-  if (id === 'chigiri'){ p.speedBoost = .85; p.egoTimer = 3.6; }
-  else if (id === 'bachira'){ p.ghost = 3.4; p.speedBoost = .40; }
-  else if (id === 'barou'){ p.king = 2.8; p.powerBoost = .5; }
-  else if (id === 'nagi'){
-    if (b.owner !== p && dist(p.x, p.z, b.x, b.z) < 22){ b.owner = p; b.freeCd = 0; b.lastTouch = p;
-      spark(b.x, b.y, b.z, {n:24, col:'#9fd8ff', size:.16, life:.5}); }
-    p.powerBoost = .55; p.egoTimer = 4;
+  if (b.owner === p) return false;
+  if (dist(p.x, p.z, b.x, b.z) > range) return false;
+  b.owner = p; b.lastTouch = p; b.freeCd = 0; b.hot = 0; b.mode = '';
+  b.vx = b.vy = b.vz = 0;
+  spark(b.x, b.y, b.z, { n:22, col:'#9fd8ff', size:.16, life:.5, spdMax:8 });
+  return true;
+}
+function burstForward(p, speed, time){
+  const [dx, dz] = (Math.abs(p.inx || 0) + Math.abs(p.inz || 0)) > .1
+    ? norm(p.inx, p.inz) : [p.fx, p.fz];
+  p.fx = dx; p.fz = dz;
+  p.vx = dx * speed; p.vz = dz * speed;
+  p.dashT = Math.max(p.dashT, time);
+}
+function feint(p){                       // leave a decoy, wrong-foot the marker
+  const foe = nearestFoe(p, 7);
+  FX.trails.push({ kind:'ghost', p, x:p.x, z:p.z, fx:p.fx, fz:p.fz, phase:p.runPhase,
+    t:0, life:.75, col:'#ffd166' });
+  if (foe){
+    foe.stun = Math.max(foe.stun, .7);
+    foe.vx *= .2; foe.vz *= .2;
+    floatText(foe.x, 2.2, foe.z, '??', { col:'#ffd166', size:26, life:.8 });
   }
-  else if (id === 'isagi'){
-    FX.targetSlow = .32; p.egoTimer = 1.5; p.powerBoost = .35;
-    setTimeout(() => { FX.targetSlow = 1; }, 1500);
-    if (b.owner === p) p.autoShot = .95;
+  return foe;
+}
+function shove(p, range, force){
+  let hit = 0;
+  for (const o of teamOf(other(p.team))){
+    if (o.isGK || o.down > 0) continue;
+    if (dist(p.x, p.z, o.x, o.z) < range){ knockdown(o, p.x, p.z, force); hit++; }
   }
-  else if (id === 'rin'){
-    if (b.owner === p) p.autoShot = .55; else { p.powerBoost = .6; p.egoTimer = 4; }
+  return hit;
+}
+function spawnPhantom(p){
+  G.phantoms.push({ x:p.x, z:p.z, fx:p.fx, fz:p.fz, char:p.char, team:p.team,
+    t:0, life:1.5, phase:0, hits:[] });
+}
+
+const MOVES = {
+  isagi: {
+    base: [
+      { name:'SPATIAL SCAN', cd:8, need:null, fn(p){
+        FX.targetSlow = .45; setTimeout(() => { if (FX.targetSlow === .45) FX.targetSlow = 1; }, 900);
+        p.aimLock = 1; grantSpeed(p, .18, 2.4);
+        mvFlash(p, '#4de3ff', 7); FX.speedlines = .5;
+        for (const o of teamOf(other(p.team))) if (dist(p.x, p.z, o.x, o.z) < 18)
+          floatText(o.x, 2.4, o.z, 'READ', { col:'#4de3ff', size:20, life:.9 });
+      }},
+      { name:'DIRECT SHOT', cd:5, need:'ball', fn(p){
+        doShoot(p, .8, { aim:'corner', power:1.12, lift:.72, col:'#4de3ff' });
+      }}
+    ],
+    awak: [
+      { name:'BLIND SPOT', cd:6, need:null, fn(p){
+        grantGhost(p, 1.6); burstForward(p, speedOf(p) * 2.1, .5);
+        for (const o of teamOf(other(p.team)))
+          if (dist(p.x, p.z, o.x, o.z) < 9){ o.stun = Math.max(o.stun, .55);
+            floatText(o.x, 2.4, o.z, 'LOST HIM', { col:'#bfe0ff', size:20, life:.9 }); }
+        mvFlash(p, '#bfe0ff', 9); FX.speedlines = .8;
+      }},
+      { name:'META DIRECT SHOT', cd:6, need:'ball', fn(p){
+        FX.targetSlow = .3; setTimeout(() => { if (FX.targetSlow === .3) FX.targetSlow = 1; }, 620);
+        p.autoShot = .5; p.autoOpt = { ego:true, aim:'corner', col:'#bfe0ff' };
+        mvFlash(p, '#bfe0ff', 8);
+      }}
+    ]
+  },
+  bachira: {
+    base: [
+      { name:'MONSTER FEINT', cd:6, need:null, fn(p){
+        feint(p); burstForward(p, speedOf(p) * 1.7, .34); mvFlash(p, '#ffd166', 5);
+      }},
+      { name:'RHYTHM DRIBBLE', cd:9, need:null, fn(p){
+        grantSpeed(p, .32, 3); p.slippery = 3;    // tackles mostly whiff
+        mvFlash(p, '#ffd166', 6);
+      }}
+    ],
+    awak: [
+      { name:'DUET', cd:8, need:null, fn(p){
+        spawnPhantom(p); grantSpeed(p, .45, 2.4);
+        mvFlash(p, '#ffd166', 9); shake(10);
+      }},
+      { name:'PHASE DANCE', cd:10, need:null, fn(p){
+        grantGhost(p, 3.6); grantSpeed(p, .45, 3.6);
+        mvFlash(p, '#ffe9a8', 8);
+      }}
+    ]
+  },
+  chigiri: {
+    base: [
+      { name:'AFTERBURN', cd:7, need:null, fn(p){
+        grantSpeed(p, .5, 2.2); burstForward(p, speedOf(p) * 1.5, .3);
+        mvFlash(p, '#ff6b8a', 6); FX.speedlines = .5;
+      }},
+      { name:'CUTBACK', cd:5, need:null, fn(p){
+        burstForward(p, speedOf(p) * 1.35, .28); grantGhost(p, .55);
+        mvFlash(p, '#ff8fa6', 4);
+      }}
+    ],
+    awak: [
+      { name:'CRIMSON BURST', cd:8, need:null, fn(p){
+        grantSpeed(p, .95, 3.4); burstForward(p, speedOf(p) * 1.8, .4);
+        mvFlash(p, '#ff3355', 10); FX.speedlines = 1; shake(12);
+        scar(p.x, p.z, 3.4, 'rgba(255,51,85,.35)');
+      }},
+      { name:'BLAZE CROSS', cd:7, need:'ball', fn(p){
+        doShoot(p, 1, { aim:'corner', power:1.25, lift:.55, curve:1.5, col:'#ff6b8a' });
+      }}
+    ]
+  },
+  nagi: {
+    base: [
+      { name:'ZERO TRAP', cd:5, need:null, fn(p){
+        const got = magnetBall(p, 15);
+        grantPower(p, .25, 4);
+        mvFlash(p, '#9fd8ff', got ? 6 : 3);
+        if (!got) floatText(p.x, 2.4, p.z, 'NO BALL IN RANGE', { col:'#9fb6dd', size:18, life:.8 });
+      }},
+      { name:'LAZY VOLLEY', cd:6, need:'ball', fn(p){
+        doShoot(p, .7, { lift:1.9, power:1.05, col:'#9fd8ff' });
+      }}
+    ],
+    awak: [
+      { name:'TRAP MASTER', cd:5, need:null, fn(p){
+        magnetBall(p, 26); grantPower(p, .6, 5); grantBrace(p, 2);
+        mvFlash(p, '#dfe6f2', 8);
+      }},
+      { name:'CANNON VOLLEY', cd:7, need:'ball', fn(p){
+        doShoot(p, 1, { ego:true, power:1.1, lift:.8, col:'#dfe6f2' });
+      }}
+    ]
+  },
+  rin: {
+    base: [
+      { name:'FLAT DRIVE', cd:5, need:'ball', fn(p){
+        doShoot(p, .9, { power:1.18, lift:.42, col:'#39d1c9' });
+      }},
+      { name:'PREDATOR PRESS', cd:6, need:null, fn(p){
+        p.tackleT = .42; p.tackleCd = .6; burstForward(p, speedOf(p) * 1.6, .42);
+        doTackle(p); mvFlash(p, '#39d1c9', 5);
+      }}
+    ],
+    awak: [
+      { name:'ULTRA LONG SHOT', cd:7, need:'ball', fn(p){
+        p.autoShot = .45; p.autoOpt = { ego:true, power:1.15, lift:.5, col:'#39d1c9' };
+        mvFlash(p, '#39d1c9', 9); FX.speedlines = .7; shake(10);
+      }},
+      { name:'SNAKE BITE', cd:6, need:'ball', fn(p){
+        doShoot(p, 1, { ego:true, aim:'corner', curve:2.6, lift:.7, col:'#7ef0e6' });
+      }}
+    ]
+  },
+  barou: {
+    base: [
+      { name:'SHOULDER CHARGE', cd:6, need:null, fn(p){
+        burstForward(p, speedOf(p) * 1.55, .34);
+        if (!shove(p, 3.2, 9)) grantBrace(p, 1.2);
+        mvFlash(p, '#ffb03a', 6);
+      }},
+      { name:'HOLD UP', cd:8, need:null, fn(p){
+        grantBrace(p, 2.6); grantPower(p, .3, 3.5);
+        mvFlash(p, '#ffd166', 5);
+      }}
+    ],
+    awak: [
+      { name:"KING'S CHARGE", cd:8, need:null, fn(p){
+        p.king = 3; grantPower(p, .5, 3.4); grantBrace(p, 3);
+        burstForward(p, speedOf(p) * 1.5, .4);
+        mvFlash(p, '#ff8a2b', 10); shake(14);
+      }},
+      { name:'CROWNED STRIKE', cd:7, need:'ball', fn(p){
+        shove(p, 5.5, 12);
+        doShoot(p, 1, { ego:true, power:1.2, lift:.7, col:'#ffb03a' });
+        ring(p.x, p.z, { r:9, life:.6, col:'#ffb03a', w:.3 });
+      }}
+    ]
   }
-  p.egoTimer = p.egoTimer || 3;
+};
+const movesOf = p => MOVES[p.char.id][p.awakened ? 'awak' : 'base'];
+function useMove(p, slot){
+  if (G.state !== 'play' || p.stun > 0 || (G.scene && G.scene.block)) return;
+  const m = movesOf(p)[slot];
+  if (!m) return;
+  if (p.cdT[slot] > 0) return;
+  if (m.need === 'ball' && G.ball.owner !== p){
+    showToast('NEEDS THE BALL'); Sound.ui(); return;
+  }
+  p.cdT[slot] = m.cd;
+  m.fn(p);
+  if (p.isUser){
+    addEgo(p, 7);
+    showToast(m.name);
+    floatText(p.x, 2.6, p.z, m.name, { col: p.awakened ? '#ffd166' : '#4de3ff', size:26, life:1 });
+  }
+  Sound.dash();
+}
+
+/* --------------------------- awakening --------------------------- */
+const AWAKE = {
+  isagi:  { title:'META VISION', tag:'BLIND SPOT', motif:'blindspot', c1:'#bfe0ff', c2:'#2f7bff',
+    desc:'Reads the whole field. Time crawls, the defence freezes, and the ball is fired straight into the gap only he can see.',
+    line:'They can only mark what they can see. Step out of their eyes, and the goal opens on its own.' },
+  bachira:{ title:'MONSTER UNLEASHED', tag:'DUET', motif:'monster', c1:'#ffe9a8', c2:'#f5c93f',
+    desc:'His monster takes the wheel. Defenders swipe at afterimages while the real Bachira glides straight through them.',
+    line:'Come out and play. There are two of us on this pitch now.' },
+  chigiri:{ title:'ABSOLUTE SPEED', tag:'NO BRAKES', motif:'speed', c1:'#ffb0bf', c2:'#ff3355',
+    desc:'Zero to top speed in a single stride. A scarlet after-burn is all the defenders ever see.',
+    line:'No more holding back. Watch the touchline burn.' },
+  nagi:   { title:'GENIUS AWAKENED', tag:'ZERO FRICTION', motif:'freeze', c1:'#dfe6f2', c2:'#8fa6c8',
+    desc:'Kills the ball dead out of the air and detonates it on the volley before anyone can blink.',
+    line:'Fine. I will stop being bored for a minute.' },
+  rin:    { title:'PREDATOR', tag:'TUNNEL VISION', motif:'tunnel', c1:'#7ef0e6', c2:'#39d1c9',
+    desc:'From anywhere past the halfway line, a flat rocket that rips the net off its frame.',
+    line:'Everything between me and that net has already stopped existing.' },
+  barou:  { title:"KING'S PRIDE", tag:'THE CROWN', motif:'crown', c1:'#ffd9a8', c2:'#ff8a2b',
+    desc:'He does not go around you. He goes through you, then hammers the ball home from the wreckage.',
+    line:'This box has a king. Kneel, or be trampled where you stand.' }
+};
+function canAwaken(){ return G.user && !G.user.awakened && G.ego >= 100 && G.state === 'play'; }
+function triggerAwaken(){
+  const p = G.user;
+  if (!canAwaken() || p.stun > 0 || (G.scene && G.scene.block)) return;
+  G.ego = 0; G.stats.specials++;
+  startAwakeningScene(p);
+}
+function startAwakeningScene(p){
+  const A = AWAKE[p.char.id];
+  const long = A.motif === 'blindspot';
+  const DUR = long ? 5.4 : 3.9;
+  const foe = nearestFoe(p, 40);
+  // the blind spot itself: the ground behind the closest marker's shoulder
+  const spot = foe ? { x: clamp(foe.x - foe.fx * 5.5, -W.HW + 3, W.HW - 3),
+                       z: clamp(foe.z - foe.fz * 5.5, 3, W.LEN - 3) }
+                   : { x: clamp(p.x + 6, -W.HW + 3, W.HW - 3), z: clamp(p.z + 9, 3, W.LEN - 3) };
+  let phase = 0;
+  Sound.flow(); shake(26);
+  FX.flash = .8; FX.flashCol = A.c1; FX.radial = 1; FX.speedlines = 1;
+  FX.targetSlow = .05;
+
+  G.scene = {
+    block:true, hideHud:true, t:0, motif:A.motif, A, p, foe, spot,
+    cam(dt){
+      const t = this.t;
+      if (long){
+        if (t < .5){ CAM.tx = p.x; CAM.ty = 6; CAM.tz = p.z - 9; CAM.tpitch = .22; CAM.tyaw = 0; CAM.tzoom = 1.5; }
+        else if (t < 3.4){                       // rise into the tactical read
+          const k = easeIO(clamp((t - .5) / 1.1, 0, 1));
+          const mx = (p.x + spot.x) / 2, mz = (p.z + spot.z) / 2;
+          CAM.tx = lerp(p.x, mx, k); CAM.ty = lerp(6, 34, k);
+          CAM.tz = lerp(p.z - 9, mz - 13, k);
+          CAM.tpitch = lerp(.22, 1.02, k); CAM.tzoom = lerp(1.5, 1, k); CAM.tyaw = 0;
+        } else {                                  // slam back down behind him
+          const k = easeIO(clamp((t - 3.4) / .8, 0, 1));
+          CAM.tx = lerp((p.x + spot.x) / 2, p.x * .6, k); CAM.ty = lerp(34, 11.6, k);
+          CAM.tz = lerp((p.z + spot.z) / 2 - 13, p.z - 17.5, k);
+          CAM.tpitch = lerp(1.02, .295, k); CAM.tzoom = 1;
+        }
+      } else {
+        if (t < 2.6){
+          const k = easeIO(clamp(t / 2.6, 0, 1));
+          const ang = -.5 + k * 1.0;
+          CAM.tx = p.x - Math.sin(ang) * 8.5; CAM.tz = p.z - Math.cos(ang) * 8.5;
+          CAM.ty = lerp(3.4, 5.6, k); CAM.tyaw = ang; CAM.tpitch = lerp(.10, .20, k);
+          CAM.tzoom = lerp(1.7, 1.25, k);
+        } else {
+          const k = easeIO(clamp((t - 2.6) / .8, 0, 1));
+          CAM.tx = lerp(p.x - Math.sin(.5) * 8.5, p.x * .6, k); CAM.ty = lerp(5.6, 11.6, k);
+          CAM.tz = lerp(p.z - Math.cos(.5) * 8.5, p.z - 17.5, k);
+          CAM.tyaw = lerp(.5, 0, k); CAM.tpitch = lerp(.20, .295, k); CAM.tzoom = 1;
+        }
+      }
+      if (!this.snapped){          // hard cut in, so the subject is framed from frame one
+        this.snapped = true;
+        CAM.x = CAM.tx; CAM.y = CAM.ty; CAM.z = CAM.tz;
+        CAM.yaw = CAM.tyaw; CAM.pitch = CAM.tpitch; CAM.zoom = CAM.tzoom;
+      }
+    },
+    update(dt){
+      const t = this.t;
+      FX.letterbox = clamp(t < DUR - .5 ? t * 5 : (DUR - t) * 2.6, 0, 1);
+      if (phase === 0 && t > .05){ phase = 1;
+        banner('AWAKENING', p.char.full, 1.5, A.c1, A.c2, .30, .12); }
+      if (phase === 1 && t > .55){ phase = 2; FX.targetSlow = long ? .12 : .3; Sound.stinger(); }
+      if (long && phase === 2 && t > 2.15){ phase = 3;
+        Sound.stinger(); FX.flash = .3; FX.flashCol = '#ffd166';
+        floatText(spot.x, 1.6, spot.z, 'BLIND SPOT', { col:'#ffd166', size:34, life:1.4 });
+        ring(spot.x, spot.z, { r:5.5, life:.9, col:'#ffd166', w:.22 });
+      }
+      const cutAt = long ? 3.3 : 1.9;
+      if (phase >= 2 && phase < 8 && t > cutAt){ phase = 8;
+        startCutin(p.char, A.title, A.line, DUR - cutAt - .35, true, 'A');
+        p.awakened = true; p.flow = 8; p.aura = 1;
+        p.cdT[0] = 0; p.cdT[1] = 0;
+        Sound.ego(); FX.flash = .6; FX.flashCol = A.c1; shake(22);
+        ring(p.x, p.z, { r:13, life:.9, col:A.c2, w:.42 });
+        spark(p.x, 1.1, p.z, { n:52, col:A.c1, size:.2, life:1.1, spdMax:15, up:9 });
+        scar(p.x, p.z, 5, 'rgba(255,209,102,.32)');
+        syncTrainPanel();
+      }
+      if (t > DUR){
+        FX.targetSlow = 1; FX.letterbox = 0; G.scene = null;
+        G.state = 'play';
+        banner(A.tag + ' UNLOCKED', movesOf(p).map(m => m.name).join('  ·  '),
+          2.2, A.c1, A.c2, .74, .055);
+      }
+    },
+    // ---- world-space motif, drawn on the pitch ----
+    world(g){
+      const t = this.t, k = clamp((t - .5) / .8, 0, 1);
+      if (this.motif === 'blindspot'){
+        if (t < .5 || t > 3.9) return;
+        const fade = clamp(Math.min(k, (4.0 - t) / .5), 0, 1);
+        g.save(); g.globalCompositeOperation = 'lighter';
+        for (const o of teamOf(other(p.team))){       // what each marker can actually see
+          const R = 17, half = .62;
+          const pts = [[o.x, .05, o.z]];
+          for (let i = 0; i <= 12; i++){
+            const a = Math.atan2(o.fz, o.fx) - half + (i / 12) * half * 2;
+            pts.push([o.x + Math.cos(a) * R, .05, o.z + Math.sin(a) * R]);
+          }
+          g.globalAlpha = fade * .30;
+          poly3(g, pts, o.isGK ? 'rgba(255,120,150,.6)' : 'rgba(90,190,255,.65)');
+          const q = proj(o.x, .05, o.z);
+          if (q){
+            blitGlow(g, '#ff5c7a', q.x, q.y, Math.min(q.s * 1.1, 70), fade * .5);
+            g.globalAlpha = fade * .8; g.strokeStyle = '#ff5c7a'; g.lineWidth = 2;
+            g.beginPath(); g.arc(q.x, q.y, Math.max(6, q.s * .5), 0, TAU); g.stroke();
+          }
+        }
+        g.restore();
+        // the gap they are not covering
+        if (t > 2.0){
+          const kk = clamp((t - 2.0) / .5, 0, 1);
+          g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = fade;
+          const pulse = 3.4 + Math.sin(t * 9) * .35;
+          ellipseGround(g, spot.x, spot.z, pulse * kk, pulse * kk * .92, 'rgba(255,209,102,.16)');
+          const N = 40, ringPts = [];
+          for (let i = 0; i < N; i++){ const a = i / N * TAU;
+            const q = proj(spot.x + Math.cos(a) * pulse * kk, .06, spot.z + Math.sin(a) * pulse * kk);
+            if (q) ringPts.push(q); }
+          if (ringPts.length > 3){ polyPath(g, ringPts); g.strokeStyle = '#ffd166';
+            g.lineWidth = 5; g.shadowColor = '#ffd166'; g.shadowBlur = 18;
+            g.setLineDash([14, 9]); g.lineDashOffset = -t * 40; g.stroke();
+            g.setLineDash([]); g.shadowBlur = 0; }
+          // the run he is about to make
+          const a0 = proj(p.x, .06, p.z), a1 = proj(spot.x, .06, spot.z);
+          if (a0 && a1){
+            g.strokeStyle = 'rgba(255,209,102,.85)'; g.lineWidth = 4;
+            g.setLineDash([16, 10]); g.lineDashOffset = -t * 90;
+            g.beginPath(); g.moveTo(a0.x, a0.y); g.lineTo(a1.x, a1.y); g.stroke(); g.setLineDash([]);
+          }
+          g.restore();
+        }
+      } else if (this.motif === 'crown' || this.motif === 'speed'){
+        if (Math.random() < .5)
+          ring(p.x, p.z, { r: 5 + Math.random() * 7, life:.5,
+            col: this.motif === 'crown' ? 'rgba(255,176,58,.7)' : 'rgba(255,51,85,.7)', w:.14 });
+      }
+    },
+    // ---- screen-space motif ----
+    screen(g){
+      const t = this.t, A2 = this.A;
+      const up = clamp((t - .35) / .6, 0, 1), down = 1 - clamp((t - (DUR - 1.1)) / .8, 0, 1);
+      const a = up * down;
+      if (a <= .01) return;
+      if (this.motif === 'blindspot'){
+        g.save(); g.globalAlpha = a * .55; g.fillStyle = '#04101f';   // the world greys out
+        g.fillRect(0, 0, VW, VH); g.restore();
+        g.save(); g.globalAlpha = a * .5; g.strokeStyle = 'rgba(90,190,255,.5)'; g.lineWidth = 1;
+        for (let x = 0; x < VW; x += 46){ g.beginPath(); g.moveTo(x, 0); g.lineTo(x, VH); g.stroke(); }
+        for (let y = 0; y < VH; y += 46){ g.beginPath(); g.moveTo(0, y); g.lineTo(VW, y); g.stroke(); }
+        g.restore();
+      } else if (this.motif === 'monster'){
+        const rise = easeOut(clamp((t - .35) / 1.1, 0, 1));
+        const q = { x: VW * .5, y: VH * (1.34 - .42 * rise) };
+        g.save(); g.globalAlpha = a * .85;
+        const H = VH * .78;
+        g.fillStyle = '#120d02';
+        g.beginPath();
+        g.moveTo(q.x - H * .34, q.y + H * .1);
+        g.quadraticCurveTo(q.x - H * .40, q.y - H * .75, q.x, q.y - H * .95);
+        g.quadraticCurveTo(q.x + H * .40, q.y - H * .75, q.x + H * .34, q.y + H * .1);
+        g.closePath(); g.fill();
+        for (const sx of [-1, 1]){
+          g.fillStyle = '#ffd166'; g.shadowColor = '#ffd166'; g.shadowBlur = 26;
+          g.beginPath();
+          g.ellipse(q.x + sx * H * .13, q.y - H * .58, H * .075, H * .038, sx * .3, 0, TAU);
+          g.fill();
+        }
+        g.shadowBlur = 0;
+        g.strokeStyle = '#ffd166'; g.lineWidth = 3;   // grin
+        g.beginPath(); g.moveTo(q.x - H * .16, q.y - H * .40);
+        g.quadraticCurveTo(q.x, q.y - H * .26, q.x + H * .16, q.y - H * .40); g.stroke();
+        g.restore();
+      } else if (this.motif === 'speed'){
+        FX.speedlines = Math.max(FX.speedlines, a * .9);
+      } else if (this.motif === 'freeze'){
+        g.save(); g.globalAlpha = a * .45; g.fillStyle = '#0a1526';
+        g.fillRect(0, 0, VW, VH);
+        g.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < 44; i++){
+          const x = (i * 137.5 + t * 30) % VW, y = ((i * 71.3) % VH + t * 22) % VH;
+          g.globalAlpha = a * .5; blitGlow(g, '#dfe6f2', x, y, 9 + (i % 4) * 4, a * .35);
+        }
+        g.restore();
+      } else if (this.motif === 'tunnel'){
+        const gz = attackZ(p.team), q = proj(0, 1.2, gz);
+        const cx = q ? q.x : VW / 2, cy = q ? q.y : VH * .45;
+        const gr = g.createRadialGradient(cx, cy, Math.min(VW, VH) * .06, cx, cy, Math.max(VW, VH) * .62);
+        gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(1, `rgba(2,10,14,${a * .93})`);
+        g.save(); g.fillStyle = gr; g.fillRect(0, 0, VW, VH);
+        g.globalCompositeOperation = 'lighter';
+        blitGlow(g, A2.c1, cx, cy, Math.min(VW, VH) * .18, a * .5);
+        g.restore();
+      } else if (this.motif === 'crown'){
+        const q0 = proj(p.x, 2.6, p.z);
+        const w = Math.min(VW * .22, VH * .3), h = w * .62;
+        const cx = clamp(q0 ? q0.x : VW / 2, w, VW - w);
+        const cy = clamp(q0 ? q0.y : VH * .45, VH * .16 + h, VH * .7);
+        const drop = (1 - easeOut(clamp((t - .4) / .9, 0, 1))) * VH * .35;
+        g.save(); g.globalAlpha = a; g.translate(cx, cy - h * .5 - drop);
+        g.fillStyle = '#ffb03a'; g.shadowColor = '#ffd166'; g.shadowBlur = 30;
+        g.beginPath();
+        g.moveTo(-w / 2, h * .5); g.lineTo(-w / 2, -h * .1);
+        g.lineTo(-w * .25, h * .18); g.lineTo(0, -h * .55);
+        g.lineTo(w * .25, h * .18); g.lineTo(w / 2, -h * .1);
+        g.lineTo(w / 2, h * .5); g.closePath(); g.fill();
+        g.shadowBlur = 0; g.restore();
+      }
+    }
+  };
+}
+
+/* ----------------------------- phantoms ----------------------------- */
+function stepPhantoms(dt){
+  for (let i = G.phantoms.length - 1; i >= 0; i--){
+    const ph = G.phantoms[i];
+    ph.t += dt;
+    if (ph.t >= ph.life){ G.phantoms.splice(i, 1); continue; }
+    const sp = 15;
+    ph.x += ph.fx * sp * dt; ph.z += ph.fz * sp * dt; ph.phase += dt * 14;
+    for (const o of teamOf(other(ph.team))){
+      if (o.isGK || ph.hits.includes(o) || o.down > 0) continue;
+      if (dist(ph.x, ph.z, o.x, o.z) < 2){ ph.hits.push(o); knockdown(o, ph.x, ph.z, 11); }
+    }
+    if (Math.random() < dt * 40)
+      spark(ph.x, rand(1.6, .2), ph.z, { n:1, col:'#ffd166', size:.14, life:.4, spdMax:2, g:2 });
+  }
+}
+function drawPhantom(g, ph){
+  {
+    const k = 1 - ph.t / ph.life;
+    playerSprite(g, { char:ph.char, team:'B', x:ph.x, z:ph.z, fx:ph.fx, fz:ph.fz,
+      runPhase:ph.phase, vx:ph.fx * 15, vz:ph.fz * 15, chargeT:0, aura:1, ghost:1,
+      king:0, flow:1, isUser:false, celebrate:0, down:0, stun:0, dive:0, isGK:false,
+      tackleT:0, kickCd:0 }, { alpha: k * .75 });
+  }
 }
 
 /* --------------------------- user control --------------------------- */
@@ -1242,10 +1709,12 @@ function updateUser(p, dt){
     if ((keyOnce.l || keyOnce.j || touch.shootOnce) && p.tackleCd <= 0 && p.stun <= 0){ doTackle(p); touch.shootOnce = false; }
   }
   if (keyOnce.l && has && p.tackleCd <= 0){ /* no-op while owning */ }
-  if (keyOnce.e || touch.specOnce){ triggerSpecial(); touch.specOnce = false; }
+  if (keyOnce.q) useMove(p, 0);
+  if (keyOnce.e || touch.specOnce){ useMove(p, 1); touch.specOnce = false; }
+  if (keyOnce.f || touch.awakeOnce){ triggerAwaken(); touch.awakeOnce = false; }
   if (p.autoShot > 0){
     p.autoShot -= dt;
-    if (p.autoShot <= 0 && b.owner === p){ doShoot(p, 1, p.char.id); }
+    if (p.autoShot <= 0 && b.owner === p){ doShoot(p, 1, p.autoOpt || { ego:true, aim:'corner' }); }
   }
   // stamina
   const moving = mag > .1;
@@ -1390,7 +1859,11 @@ function stepPlayer(p, dt){
   if (p.ghost > 0) p.ghost -= dt;
   if (p.king > 0) p.king -= dt;
   if (p.flow > 0) p.flow -= dt;
-  if (p.egoTimer > 0){ p.egoTimer -= dt; if (p.egoTimer <= 0){ p.speedBoost = 0; p.powerBoost = 0; } }
+  if (p.spdT > 0){ p.spdT -= dt; if (p.spdT <= 0) p.speedBoost = 0; }
+  if (p.pwrT > 0){ p.pwrT -= dt; if (p.pwrT <= 0) p.powerBoost = 0; }
+  if (p.brace > 0) p.brace -= dt;
+  if (p.slippery > 0) p.slippery -= dt;
+  if (p.cdT){ for (let i = 0; i < p.cdT.length; i++) if (p.cdT[i] > 0) p.cdT[i] -= dt; }
   if (p.celebrate > 0) p.celebrate -= dt;
   p.aura = lerp(p.aura, p.flow > 0 ? 1 : 0, Math.min(1, dt * 4));
 
@@ -1434,6 +1907,8 @@ function playerCollisions(dt){
           if (a.king > 0 && Math.hypot(a.vx, a.vz) > 6 && b.down <= 0){ knockdown(b, a.x, a.z, 12); continue; }
           if (b.king > 0 && Math.hypot(b.vx, b.vz) > 6 && a.down <= 0){ knockdown(a, b.x, b.z, 12); continue; }
           if (aGhost || bGhost) continue;
+          if (a.brace > 0 && b.brace <= 0){ b.x -= nx * push * 2.4; b.z -= nz * push * 2.4; continue; }
+          if (b.brace > 0 && a.brace <= 0){ a.x += nx * push * 2.4; a.z += nz * push * 2.4; continue; }
           // shoulder-to-shoulder: heavier/faster wins a little ground
           const wa = a.char.stats.tackle + Math.hypot(a.vx, a.vz) * .5;
           const wb = b.char.stats.tackle + Math.hypot(b.vx, b.vz) * .5;
@@ -1485,9 +1960,9 @@ function onGoal(scorer, cx, cy, gz){
   if (shooter) shooter.celebrate = 3.4;
   if (G.mode === 'training' && G.noCut){
     banner('GOAL', null, .9, '#ffffff', '#4de3ff', .30, .12);
-    setTimeout(() => {
-      if (G.mode === 'training' && G.state === 'goal'){ trainResetBall(); G.state = 'play'; }
-    }, 550);
+    G.scene = { block:false, t:0, update(){
+      if (this.t > .55){ trainResetBall(); G.state = 'play'; G.scene = null; }
+    } };
   } else startGoalScene(scorer, shooter, cx, cy, gz);
   document.getElementById('scoreA').textContent = G.score.A;
   document.getElementById('scoreB').textContent = G.score.B;
@@ -1541,6 +2016,7 @@ function updateWorld(dt){
     if (p.isUser && !blocked) tryPossess(p);
   }
   if (!blocked) playerCollisions(dt);
+  stepPhantoms(dt);
   ballStep(dt);
   if (NET.on){ NET.t += dt; if (NET.t > 1.6) NET.on = false; }
   // crowd intensity tracks the danger level
@@ -2010,6 +2486,7 @@ function renderWorld(g){
   camPrep();
   drawStadium(g);
   drawPitch(g);
+  if (G.scene && G.scene.world) G.scene.world(g);
   // shadows first (they live on the ground plane)
   for (const p of G.players){
     if (p.isUser){
@@ -2030,6 +2507,7 @@ function renderWorld(g){
   const items = [];
   for (const p of G.players) items.push({ d: depthOf(p.z, 0, p.x), fn: () => playerSprite(g, p) });
   items.push({ d: depthOf(G.ball.z, G.ball.y, G.ball.x), fn: () => drawBall(g) });
+  for (const ph of G.phantoms) items.push({ d: depthOf(ph.z, 0, ph.x), fn: () => drawPhantom(g, ph) });
   items.push({ d: depthOf(W.zA + 1), fn: () => drawGoal(g, W.zA, 'A') });
   items.push({ d: depthOf(W.zB - 1), fn: () => drawGoal(g, W.zB, 'B') });
   items.sort((a, b) => b.d - a.d);
@@ -2118,6 +2596,7 @@ function postFX(g){
     g.fillStyle = 'rgba(77,227,255,.35)';
     g.fillRect(0, h, VW, 1.5); g.fillRect(0, VH - h - 1.5, VW, 1.5);
   }
+  if (G.scene && G.scene.screen) G.scene.screen(g);
   if (FX.banner) drawBanner(g);
   if (FX.cutin) drawCutin(g);
 }
@@ -2294,8 +2773,11 @@ function startIntro(){
       if (stinged === 0 && t > .25){ stinged = 1;
         banner('BLUE LOCK', 'EGO ARENA · 2 MINUTES · WINNER TAKES ALL', 2.2, '#bfe0ff', '#2f7bff', .32, .12);
         Sound.stinger(); Sound.crowd(.9); }
-      if (stinged === 1 && t > 2.5){ stinged = 2; startCutin(u.char, u.char.name, u.char.pos + ' — ' + u.char.move, 1.5, false); }
-      if (stinged === 2 && t > 4.1){ stinged = 3; startCutin(rival.char, 'RIVAL: ' + rival.char.name, rival.char.pos + ' — ' + rival.char.move, 1.3, false, 'B'); }
+      if (stinged === 1 && t > 2.5){ stinged = 2;
+        startCutin(u.char, u.char.name, u.char.pos + ' — AWAKENING: ' + AWAKE[u.char.id].title, 1.5, false); }
+      if (stinged === 2 && t > 4.1){ stinged = 3;
+        startCutin(rival.char, 'RIVAL: ' + rival.char.name,
+          rival.char.pos + ' — AWAKENING: ' + AWAKE[rival.char.id].title, 1.3, false, 'B'); }
       if (stinged === 3 && t > 5.5){ stinged = 4; banner('VS', null, 1.0, '#ffd166', '#ff3355', .42, .17); Sound.stinger(); FX.flash = .4; FX.flashCol = '#ffd166'; shake(8); }
       if (stinged === 4 && t > 6.5){ stinged = 5; Sound.whistle();
         banner('KICK OFF', 'WASD MOVE · SHIFT DASH · HOLD J TO CHARGE (A/D AIMS THE CORNERS) · K PASS · L TACKLE · E EGO MOVE',
@@ -2321,7 +2803,7 @@ function startGoalScene(scorer, shooter, cx, cy, gz){
         const k = (t - 1) / 2.0;
         const ang = orbitBase + k * 1.5;
         const R = lerp(7.5, 11, k);
-        CAM.tx = shooter.x + Math.sin(ang) * R; CAM.tz = shooter.z - Math.cos(ang) * R;
+        CAM.tx = shooter.x - Math.sin(ang) * R; CAM.tz = shooter.z - Math.cos(ang) * R;
         CAM.ty = lerp(3.2, 6.5, k); CAM.tyaw = ang; CAM.tpitch = lerp(.10, .22, k); CAM.tzoom = lerp(1.5, 1.15, k);
       } else {
         CAM.tx = 0; CAM.ty = 13; CAM.tz = W.LEN * .5 - 19; CAM.tyaw = 0; CAM.tpitch = .32; CAM.tzoom = 1;
@@ -2419,22 +2901,34 @@ function drawRadar(){
 /* -------------------------------- HUD -------------------------------- */
 const $ = id => document.getElementById(id);
 function updateHUD(){
-  $('egoFill').style.width = G.ego + '%';
-  $('egoM').classList.toggle('full', G.ego >= 100);
+  $('egoFill').style.width = (G.user && G.user.awakened ? 100 : G.ego) + '%';
   $('stamFill').style.width = (G.user ? G.user.stam * 100 : 100) + '%';
   const u = G.user; if (!u) return;
   const cd = (el, v, max) => { const e = $(el); e.style.transform = `scaleY(${clamp(v / max, 0, 1)})`; };
   cd('cdDash', u.dashCd, 1.15); cd('cdTackle', u.tackleCd, .95);
   cd('cdShoot', u.kickCd, .3); cd('cdPass', u.kickCd, .3);
-  cd('cdSpec', 1 - G.ego / 100, 1);
-  $('kSpec').classList.toggle('rdy', G.ego >= 100);
+  const set = movesOf(u);
+  for (let i = 0; i < 2; i++){
+    const m = set[i];
+    const lab = $('lM' + i), box = $('kM' + i);
+    if (lab.textContent !== m.name) lab.textContent = m.name;
+    cd('cdM' + i, u.cdT[i], m.cd);
+    box.classList.toggle('rdy', u.cdT[i] <= 0 && (m.need !== 'ball' || G.ball.owner === u));
+    box.classList.toggle('awk', u.awakened);
+  }
+  cd('cdSpec', u.awakened ? 0 : 1 - G.ego / 100, 1);
+  $('kSpec').classList.toggle('rdy', canAwaken());
+  $('kSpec').classList.toggle('done', u.awakened);
+  $('kSpec').querySelector('.k').textContent = u.awakened ? 'ON' : 'F';
   $('kDash').classList.toggle('rdy', u.dashCd <= 0);
   $('kTackle').classList.toggle('rdy', u.tackleCd <= 0);
   const has = G.ball.owner === u;
   $('kShoot').classList.toggle('rdy', has);
   $('kPass').classList.toggle('rdy', has);
   $('kShoot').querySelector('.l').textContent = has ? 'SHOOT' : 'TACKLE';
-  $('egoLab').textContent = G.ego >= 100 ? 'EGO GAUGE — PRESS E !!' : 'EGO GAUGE';
+  $('egoLab').textContent = u.awakened ? 'AWAKENED'
+    : G.ego >= 100 ? 'AWAKENING READY — PRESS F !!' : 'AWAKENING GAUGE';
+  $('egoM').classList.toggle('full', canAwaken() || u.awakened);
 }
 /* ---------------------------- menu backdrop ---------------------------- */
 function menuWorld(dt){
@@ -2491,7 +2985,8 @@ function buildCards(){
     el.className = 'card' + (c.id === chosen ? ' sel' : '');
     el.dataset.id = c.id;
     el.innerHTML = `<canvas></canvas><div class="num">${c.num}</div>
-      <div class="nm">${c.name}</div><div class="pos">${c.pos}</div><div class="mv">◆ ${c.move}</div>
+      <div class="nm">${c.name}</div><div class="pos">${c.pos}</div>
+      <div class="mv">★ ${AWAKE[c.id].title}</div>
       <div class="glow"></div>`;
     wrap.appendChild(el);
     const cc = el.querySelector('canvas');
@@ -2524,9 +3019,14 @@ function refreshSelect(){
     `<div class="srow"><span>${l}</span><span class="track"><i class="fill" data-k="${k}"></i></span><b>${c.stats[k]}</b></div>`).join('');
   requestAnimationFrame(() => document.querySelectorAll('.fill').forEach(f => {
     f.style.width = (c.stats[f.dataset.k] * 10) + '%'; }));
+  const A = AWAKE[c.id], M = MOVES[c.id];
+  const row = (keys, list) => list.map((m, i) =>
+    `<span class="mrow"><i>${keys[i]}</i>${m.name}</span>`).join('');
   $('bio').innerHTML = `<h3>${c.full} <span style="color:#4de3ff;font-size:.6em">#${c.num}</span></h3>
     <div class="quote">${c.quote}</div>
-    <div class="ab"><b>EGO MOVE — ${c.move}</b><br>${c.moveDesc}</div>`;
+    <div class="ab"><b>BASE MOVESET</b><div class="mvs">${row(['Q', 'E'], M.base)}</div></div>
+    <div class="ab"><b>★ AWAKENING — ${A.title}</b><div class="mvs">${row(['Q', 'E'], M.awak)}</div>
+      <div style="margin-top:6px;color:#8fa9d0">${A.desc}</div></div>`;
 }
 function show(id){
   ['title', 'select', 'result'].forEach(s => {
@@ -2587,6 +3087,9 @@ addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (k >= '1' && k <= '6'){ trainSwap(+k - 1); return; }
   if (k === 'r'){ trainResetBall(); Sound.ui(); showToast('BALL RESET'); return; }
+  if (k === 'x'){ const u = G.user;
+    u.awakened = false; u.flow = 0; u.aura = 0; u.cdT[0] = 0; u.cdT[1] = 0;
+    G.ego = 100; syncTrainPanel(); Sound.ui(); showToast('BASE MOVESET'); return; }
   if (k === 'g'){ trainKeeper(!G.gkOn); Sound.ui(); showToast('KEEPER ' + (G.gkOn ? 'ON' : 'OFF')); return; }
   if (k === 't'){ trainDummies((G.dummyMode + 1) % 3); Sound.ui();
     showToast('DEFENDERS ' + ['OFF', 'STANDING', 'CHASING'][G.dummyMode]); return; }
@@ -2635,6 +3138,7 @@ addEventListener('mouseup', () => { keys.mouse = false; });
   bind($('tbShoot'), () => { touch.shoot = true; touch.shootOnce = true; }, () => { touch.shoot = false; });
   bind($('tbPass'), () => { touch.passOnce = true; });
   bind($('tbSpec'), () => { touch.specOnce = true; });
+  bind($('tbAwake'), () => { touch.awakeOnce = true; });
 })();
 
 /* ============================== main loop ============================== */
@@ -2661,6 +3165,9 @@ function frame(now){
   ctx.clearRect(0, 0, VW, VH);
   renderWorld(ctx);
   postFX(ctx);
+  const cine = !!(G.scene && G.scene.hideHud);
+  $('hud').classList.toggle('cine', cine);
+  $('train').classList.toggle('cine', cine);
   drawRadar();
   updateHUD();
   for (const k in keyOnce) keyOnce[k] = false;

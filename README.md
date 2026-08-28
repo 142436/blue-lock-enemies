@@ -62,17 +62,22 @@ animated, and the camera hard-cuts between framings: a ground-level plant, a low
 motes stream inward and he gathers, then the eruption — an aura column, fissures tearing
 across the turf, embers — and a slow orbit as the name stamps in and clears.
 
-**Isagi's is the blind spot off the ball**, and runs longer (~16s) as its own sequence:
+**Isagi's is the blind spot off the ball**, and runs longer (~15s) in three beats:
 
-1. The stadium falls away and he is alone in a void, puzzle pieces drifting past him.
-2. He settles into a thinking pose while the pieces turn around him.
-3. One piece drops out of the lens, tumbling down and away, and strikes the unseen floor.
-4. The frame holds on that impact alone — concentric ripples spreading across the dark —
-   while he says the line.
-5. Cut to his face: the eyes ignite green with ringed lens irises.
-6. The read: the markers light up with the cones of what they can see, the gap none of them
-   covers is ringed, and he is already standing in it.
-7. Back to the pitch, and the eruption.
+1. **The swarm.** The stadium falls away. He stands alone in a void in a thinking pose while
+   a vortex of glowing blue puzzle pieces circles him, and the game breaks the fourth wall:
+   *"Hey — are you listening, {your name}?"*
+2. **The drop and ripple.** Hard cut away from the swarm. A single blank blue piece falls out
+   of the lens, strikes an unseen surface, and the frame holds on that impact alone as a blue,
+   water-like ripple spreads — the missing piece clicking into place.
+3. **The epiphany.** Cut back wider on him, eyes flaring, for the realisation:
+   *"Blind spot. Off the ball."*
+
+Then the read — the markers light up with the cones of what they can see, the gap none of them
+covers is ringed, and he is already standing in it — and the eruption back on the pitch.
+
+Your striker name is set on the select screen and remembered between sessions; the fourth-wall
+line uses it.
 
 ## Solo training
 

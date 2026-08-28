@@ -106,6 +106,11 @@
   .btn.ghost{background:transparent;color:#bcd8ff;border:1px solid rgba(140,190,255,.4);box-shadow:none}
   .btn.gold{background:linear-gradient(180deg,#ffe9a8,#ffb42e);box-shadow:0 0 26px rgba(255,180,46,.6),0 6px 0 #8a5a00}
   .btn.gold:hover{box-shadow:0 0 40px rgba(255,209,102,.9),0 8px 0 #8a5a00}
+  .namef{display:flex;flex-direction:column;gap:5px;font-size:10px;letter-spacing:.24em;color:#7f9bc8}
+  .namef input{background:rgba(8,16,40,.8);border:1px solid rgba(140,190,255,.35);border-radius:5px;
+    color:#eaf2ff;font-family:var(--face);letter-spacing:.12em;font-size:14px;padding:8px 12px;
+    width:150px;text-transform:uppercase;outline:none}
+  .namef input:focus{border-color:var(--cy);box-shadow:0 0 14px rgba(77,227,255,.45)}
   .diff{display:flex;gap:8px;align-items:center;font-size:11px;letter-spacing:.2em;color:#7f9bc8}
   .dbtn{padding:8px 16px;border:1px solid rgba(140,190,255,.3);background:rgba(10,20,50,.6);color:#9fb6dd;
     border-radius:5px;cursor:pointer;font-family:var(--face);letter-spacing:.14em;font-size:12px}
@@ -242,6 +247,9 @@
       <div class="bio" id="bio"></div>
     </div>
     <div class="foot">
+      <label class="namef">STRIKER NAME
+        <input id="pname" maxlength="12" autocomplete="off" spellcheck="false" value="STRIKER">
+      </label>
       <div class="diff">RIVAL LEVEL
         <button class="dbtn" data-d="0">ROOKIE</button>
         <button class="dbtn on" data-d="1">ELITE</button>
@@ -519,16 +527,16 @@ function drawBust(g, c, cx, cy, S, t = 0, opts = {}){
     if (opts.metaEye){
       const ex = s * ew * .12, ey2 = -eh * .1;
       g.save();
-      g.shadowColor = '#3cff8a'; g.shadowBlur = S * .09;
-      g.fillStyle = '#31e07f';
+      g.shadowColor = '#6cc6ff'; g.shadowBlur = S * .09;
+      g.fillStyle = '#2f7bff';
       g.beginPath(); g.ellipse(ex, ey2, ew * .58, eh * .92, 0, 0, TAU); g.fill();
       g.shadowBlur = 0;
       for (let r = 3; r >= 1; r--){    // concentric lens rings
-        g.strokeStyle = r % 2 ? 'rgba(200,255,224,.95)' : 'rgba(10,60,35,.9)';
+        g.strokeStyle = r % 2 ? 'rgba(214,236,255,.95)' : 'rgba(8,26,60,.9)';
         g.lineWidth = S * .012;
         g.beginPath(); g.ellipse(ex, ey2, ew * .16 * r, eh * .26 * r, 0, 0, TAU); g.stroke();
       }
-      g.fillStyle = '#04160d';
+      g.fillStyle = '#061024';
       g.beginPath(); g.ellipse(ex, ey2, ew * .13, eh * .2, 0, 0, TAU); g.fill();
       g.restore();
     } else {
@@ -1427,7 +1435,7 @@ function useMove(p, slot){
 
 /* --------------------------- awakening --------------------------- */
 const AWAKE = {
-  isagi:  { title:'META VISION', tag:'BLIND SPOT OFF THE BALL', motif:'blindspot', c1:'#c8ffe0', c2:'#31e07f',
+  isagi:  { title:'META VISION', tag:'BLIND SPOT OFF THE BALL', motif:'blindspot', c1:'#cfe6ff', c2:'#2f7bff',
     desc:'Reads the whole field. Time crawls, the defence freezes, and the ball is fired straight into the gap only he can see.',
     line:'They can only mark what they can see. Step out of their eyes, and the goal opens on its own.' },
   bachira:{ title:'MONSTER UNLEASHED', tag:'DUET', motif:'monster', c1:'#ffe9a8', c2:'#f5c93f',
@@ -1486,7 +1494,7 @@ function puzzlePath(g, s){
 function startAwakeningScene(p){
   const A = AWAKE[p.char.id];
   const blind = p.char.id === 'isagi';
-  const DUR = blind ? 15.9 : 4.6;
+  const DUR = blind ? 15.2 : 4.6;
   const marker = nearestFoe(p, 40);
   // where he reappears: the ground behind his marker's shoulder
   const spot = marker
@@ -1498,21 +1506,20 @@ function startAwakeningScene(p){
   // shot boundaries (seconds)
   // blind spot runs as its own beat list; the rest share the short spine
   const T = blind
-    ? { plant:.9,        // drop into the void
-        think:.9,        // pieces drift, he settles into the pose
-        fall:2.8,        // one piece tumbles down
-        land:4.4,        // it strikes the floor -> ripple
-        eye:8.0,         // close on the eyes for his reply
-        read:10.4,       // the markers and the gap they leave
-        appear:12.2,     // he is already standing in it
-        burst:13.0, orbit:14.0, back:15.9,
-        void0:.9, void1:8.0, mark:1e9, vanish:1e9 }
+    ? { plant:.8,        // the stadium falls away
+        think:.8,        // 1. the swarm: pieces vortex around him
+        fall:5.0,        // 2. cut away — a blank piece drops
+        land:6.3,        //    it strikes the unseen floor
+        eye:8.6,         // 3. cut back wide — the epiphany
+        read:11.5,       //    the read: markers and the gap
+        appear:12.4,     //    he is already standing in it
+        burst:12.9, orbit:13.9, back:15.2,
+        void0:.8, void1:8.6, mark:1e9, vanish:1e9 }
     : { plant:.45, mark:.45, vanish:.45, appear:.45, burst:1.75, orbit:3.45, back:4.6 };
   // spoken beats: [from, to, speaker, line]
   const LINES = blind ? [
-    [4.5, 6.6, p.char.name, 'Blind spot... off the ball.'],
-    [6.7, 8.0, 'NAGI', 'Oi. You even hear what I said?'],
-    [8.2, 10.3, p.char.name, 'Shut up, genius. I am getting to the good part.']
+    [2.1, 4.8, 'BLUE LOCK', 'Hey — are you listening, ' + playerName + '?'],
+    [9.2, 11.4, p.char.name, 'Blind spot. Off the ball.']
   ] : [];
   const CH = blind ? .45 : .45;     // charge shot starts here on the short path
 
@@ -1522,9 +1529,10 @@ function startAwakeningScene(p){
     voidK:0, ripples:[], pieces:[], eyeK:0, coneK:0, sub:'', who:'',
     fall:null, landed:false
   };
-  for (let i = 0; i < 26; i++)                     // drifting puzzle pieces
-    S.pieces.push({ x:rand(1, 0), y:rand(1, 0), s:rand(1, .35), vy:rand(-.055, -.016),
-      vx:rand(.014, -.014), rot:rand(TAU), vr:rand(.5, -.5), d:rand(1, .35) });
+  for (let i = 0; i < 46; i++)                    // the swarm: a vortex orbiting him
+    S.pieces.push({ ang:rand(TAU), r:rand(4.0, 1.3), y:rand(3.2, .1),
+      vang:rand(1.6, .7) * rsign(), vy:rand(.45, -.45), s:rand(1, .45),
+      rot:rand(TAU), vr:rand(1.6, -1.6) });
   for (let i = 0; i < 16; i++)
     S.cracks.push(makeCrack(spot.x, spot.z, i / 16 * TAU + rand(.2), rand(9, 4)));
 
@@ -1538,22 +1546,25 @@ function startAwakeningScene(p){
       if (blind){
         // the void: fixed, slowly closing framings — the background is black anyway
         if (t < T.plant){ lookAt(h.x + .8, .5, h.z - 2.6, h.x, .8, h.z); CAM.tzoom = 1.7; CAM.troll = .09; }
-        else if (t < T.fall){                             // wide: him alone, pieces drifting
+        else if (t < T.fall){                             // 1. the swarm circling him
           const k = clamp((t - T.think) / (T.fall - T.think), 0, 1);
-          lookAt(h.x, lerp(1.9, 1.55, k), h.z - lerp(7.8, 6.4, k), h.x, 1.05, h.z);
-          CAM.tzoom = lerp(1.0, 1.15, easeIO(k)); CAM.troll = 0;
-        } else if (t < T.land){                           // the piece drops away from the lens
+          const ang = -.55 + k * .95;
+          const R = lerp(6.2, 5.2, easeIO(k));
+          lookAt(h.x - Math.sin(ang) * R, lerp(2.2, 1.5, k), h.z - Math.cos(ang) * R, h.x, 1.15, h.z);
+          CAM.tzoom = lerp(1.05, 1.28, easeIO(k)); CAM.troll = lerp(.02, -.03, k);
+        } else if (t < T.land){                           // 2. cut away: the piece drops
           const f = S.fall || { x:h.x + .8, z:h.z + 4.6 };
           lookAt(f.x, 1.5, f.z - 4.4, f.x, .35, f.z);
           CAM.tzoom = 1.35; CAM.troll = .02;
-        } else if (t < T.eye){                            // the ripple, on its own
+        } else if (t < T.eye){                            //    the ripple, alone
           const f = S.fall || { x:h.x + .8, z:h.z + 4.6 };
           const k = clamp((t - T.land) / (T.eye - T.land), 0, 1);
-          lookAt(f.x + lerp(.2, 1.1, k), lerp(.42, .72, k), f.z - lerp(2.6, 3.4, k), f.x, .06, f.z);
+          lookAt(f.x + lerp(.2, 1.1, k), lerp(.40, .70, k), f.z - lerp(2.5, 3.3, k), f.x, .06, f.z);
           CAM.tzoom = lerp(1.5, 1.25, k); CAM.troll = lerp(.02, -.03, k);
-        } else if (t < T.read){                           // close on the eyes for the reply
-          lookAt(h.x, 1.62, h.z - 2.05, h.x, 1.6, h.z);
-          CAM.tzoom = 2.5; CAM.troll = -.02;
+        } else if (t < T.read){                           // 3. cut back wider: the epiphany
+          const k = clamp((t - T.eye) / (T.read - T.eye), 0, 1);
+          lookAt(h.x - .5, lerp(2.5, 2.1, k), h.z - lerp(8.2, 6.9, easeIO(k)), h.x, 1.15, h.z);
+          CAM.tzoom = lerp(1.05, 1.24, easeIO(k)); CAM.troll = 0;
         } else if (t < T.appear){                         // the read: markers and the gap
           const k = clamp((t - T.read) / (T.appear - T.read), 0, 1);
           lookAt(h.x - 1.5, lerp(9, 15, k), h.z - lerp(9, 12, k), lerp(h.x, spot.x, .5), .6, lerp(h.z, spot.z, .5));
@@ -1639,6 +1650,7 @@ function startAwakeningScene(p){
       if (blind){
         S.voidK = clamp(t > T.back - .8 ? (T.back - .3 - t) / .5 : (t - .3) / .55, 0, 1);
         if (t > T.think && t < T.read) S.pose.think = clamp((t - T.think) / .9, 0, 1);
+        S.swarmK = clamp(t < T.fall ? (t - T.think) / .7 : 1, 0, 1);
         if (!this._v1 && t > T.think){ this._v1 = 1; Sound.flow(); }
         // one piece tumbles down and strikes the floor
         if (!S.fall && t > T.fall){
@@ -1663,9 +1675,10 @@ function startAwakeningScene(p){
         for (const L of LINES) if (t >= L[0] && t < L[1]) line = L;
         S.sub = line ? line[3] : '';
         S.who = line ? line[2] : '';
-        // the eyes ignite for his reply
-        S.eyeK = (t > T.eye && t < T.read) ? clamp((t - T.eye) / .5, 0, 1) : 0;
-        if (!this._eye && t > T.eye){ this._eye = 1; Sound.stinger(); }
+        // the epiphany lands on the wide shot; the eyes just flare
+        if (!this._eye && t > T.eye){ this._eye = 1; Sound.stinger();
+          FX.flash = .18; FX.flashCol = A.c1; }
+        S.eyeK = 0;
         if (!this._read && t > T.read){ this._read = 1; Sound.stinger(); }
         if (t > T.read) S.coneK = clamp((t - T.read) / .8, 0, 1);
         if (!this._step && t > T.appear){ this._step = 1;   // he is already in the gap
@@ -1758,18 +1771,33 @@ function startAwakeningScene(p){
 
       if (blind && S.voidK > .02){
         const vk = S.voidK;
-        // drifting puzzle pieces
-        g.save();
-        for (const pc of S.pieces){
-          pc.y += pc.vy * LAST_DT; pc.x += pc.vx * LAST_DT; pc.rot += pc.vr * LAST_DT;
-          if (pc.y < -.1){ pc.y = 1.1; pc.x = Math.random(); }
-          const px = pc.x * VW, py = pc.y * VH, sz = VH * .022 * pc.s * (.5 + pc.d);
-          g.save(); g.translate(px, py); g.rotate(pc.rot);
-          g.globalAlpha = vk * (.16 + pc.d * .5);
-          g.fillStyle = '#eafff4'; puzzlePath(g, sz); g.fill();
+        // the swarm: glowing pieces circling him, split around his depth
+        const heroDepth = depthOf(h.z, 1, h.x);
+        const drawPiece = (pc, near) => {
+          const wx = h.x + Math.cos(pc.ang) * pc.r, wz = h.z + Math.sin(pc.ang) * pc.r;
+          if ((depthOf(wz, pc.y, wx) < heroDepth) !== near) return;
+          const q = proj(wx, pc.y, wz); if (!q) return;
+          const sz = Math.min(q.s * .085 * pc.s, 46);
+          g.save(); g.translate(q.x, q.y); g.rotate(pc.rot);
+          g.globalAlpha = vk * .95;
+          g.shadowColor = A.c2; g.shadowBlur = 16;
+          const pg2 = g.createLinearGradient(-sz, -sz, sz, sz);
+          pg2.addColorStop(0, '#dcecff'); pg2.addColorStop(1, A.c2);
+          g.fillStyle = pg2; puzzlePath(g, sz); g.fill();
+          g.shadowBlur = 0;
           g.restore();
+        };
+        if (!soloRipple){
+          for (const pc of S.pieces){
+            pc.ang += pc.vang * LAST_DT; pc.rot += pc.vr * LAST_DT;
+            pc.y += pc.vy * LAST_DT;
+            if (pc.y > 3.6){ pc.y = 3.6; pc.vy = -Math.abs(pc.vy); }
+            if (pc.y < .05){ pc.y = .05; pc.vy = Math.abs(pc.vy); }
+          }
+          g.save(); for (const pc of S.pieces) drawPiece(pc, false); g.restore();
         }
-        g.restore();
+        S.drawNearPieces = () => { if (soloRipple) return;
+          g.save(); for (const pc of S.pieces) drawPiece(pc, true); g.restore(); };
         // faint vertical light streaks
         g.save(); g.globalCompositeOperation = 'lighter';
         for (let i = 0; i < 7; i++){
@@ -1791,11 +1819,13 @@ function startAwakeningScene(p){
           for (let r = 0; r < 3; r++){                 // concentric rings on an unseen floor
             const rr = rk * 4.2 - r * .5;
             if (rr <= 0 || rr > 4.2) continue;
-            g.globalAlpha = vk * clamp(1 - rr / 4.2, 0, 1) * .62;
-            g.strokeStyle = A.c1; g.lineWidth = Math.max(1, q.s * .020);
+            g.globalAlpha = vk * clamp(1 - rr / 4.2, 0, 1) * .72;
+            g.strokeStyle = r === 0 ? A.c1 : A.c2;
+            g.shadowColor = A.c2; g.shadowBlur = 12;
+            g.lineWidth = Math.max(1, q.s * .022);
             g.beginPath();
             g.ellipse(q.x, q.y, q.s * rr, q.s * rr * .34, 0, 0, TAU);
-            g.stroke();
+            g.stroke(); g.shadowBlur = 0;
           }
         }
         // the piece: it drops out of the lens and away toward the floor
@@ -1813,7 +1843,9 @@ function startAwakeningScene(p){
             }
             g.save(); g.globalAlpha = vk;
             g.translate(px2, py2); g.rotate(S.fall.rot);
-            g.fillStyle = '#eafff4'; g.shadowColor = A.c1; g.shadowBlur = 18;
+            const fg = g.createLinearGradient(-sz2, -sz2, sz2, sz2);
+            fg.addColorStop(0, '#ffffff'); fg.addColorStop(1, '#9cc8ff');
+            g.fillStyle = fg; g.shadowColor = A.c2; g.shadowBlur = 26;
             puzzlePath(g, sz2); g.fill();
             g.restore();
           }
@@ -1967,6 +1999,7 @@ function startAwakeningScene(p){
         g.fillText(S.sub, VW / 2, VH * .868 + fs * .55);
         g.restore();
       }
+      if (blind && S.drawNearPieces && S.voidK > .02) S.drawNearPieces();
       // brief kinetic stamp — an accent, not the scene
       if (S.stamp > 0){
         const k = 1 - S.stamp;
@@ -3359,6 +3392,19 @@ function showResult(){
 
 /* ============================ UI wiring ============================ */
 let chosen = 'isagi', diffSel = 1;
+let playerName = 'STRIKER';
+try { playerName = (localStorage.getItem('blr.name') || 'STRIKER').toUpperCase(); } catch (e) {}
+function initName(){
+  const el = $('pname'); if (!el) return;
+  el.value = playerName;
+  el.addEventListener('input', () => {
+    playerName = (el.value || '').toUpperCase().replace(/[^A-Z0-9 _-]/g, '').slice(0, 12) || 'STRIKER';
+    try { localStorage.setItem('blr.name', playerName); } catch (e) {}
+  });
+  // typing in the field must not drive the pitch
+  el.addEventListener('keydown', e => e.stopPropagation());
+  el.addEventListener('keyup', e => e.stopPropagation());
+}
 function buildCards(){
   const wrap = $('cards'); wrap.innerHTML = '';
   ROSTER.forEach(c => {
@@ -3555,7 +3601,7 @@ function frame(now){
   updateHUD();
 }
 /* boot */
-buildCards(); refreshSelect(); show('title');
+buildCards(); refreshSelect(); initName(); show('title');
 addEventListener('resize', () => { document.querySelectorAll('.card').forEach(c => c._paint && requestAnimationFrame(c._paint)); });
 requestAnimationFrame(frame);
 </script>
